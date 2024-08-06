@@ -745,6 +745,9 @@ pub struct SierraEntryPoint {
 /// A transaction signature
 pub type Signature = Vec<Felt>;
 
+/// Flags that indicate how to simulate a given transaction. By default, the sequencer behavior is replicated locally
+pub type SimulationFlagForEstimateFee = String;
+
 /// The change in state applied in this block, given as a mapping of addresses to the new values and/or new contracts
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateDiff {
@@ -2037,6 +2040,8 @@ impl<'de> Deserialize<'de> for CallParams {
 pub struct EstimateFeeParams {
     /// The transaction to estimate
     pub request: Vec<BroadcastedTxn>,
+    /// describes what parts of the transaction should be executed
+    pub simulation_flags: Vec<SimulationFlagForEstimateFee>,
     /// The hash of the requested block, or number (height) of the requested block, or a block tag, for the block referencing the state or call the transaction on.
     pub block_id: BlockId,
 }
@@ -2049,11 +2054,11 @@ impl Serialize for EstimateFeeParams {
     {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("request", &self.request)?;
+        map.serialize_entry("simulation_flags", &self.simulation_flags)?;
         map.serialize_entry("block_id", &self.block_id)?;
         map.end()
     }
 }
-
 impl<'de> Deserialize<'de> for EstimateFeeParams {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -2075,19 +2080,26 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
             {
                 let request: Vec<BroadcastedTxn> = seq
                     .next_element()?
-                    .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 2 parameters"))?;
+                    .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 3 parameters"))?;
+                let simulation_flags: Vec<SimulationFlagForEstimateFee> = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(2, &"expected 3 parameters"))?;
                 let block_id: BlockId = seq
                     .next_element()?
-                    .ok_or_else(|| serde::de::Error::invalid_length(2, &"expected 2 parameters"))?;
+                    .ok_or_else(|| serde::de::Error::invalid_length(3, &"expected 3 parameters"))?;
 
                 if seq.next_element::<serde::de::IgnoredAny>()?.is_some() {
                     return Err(serde::de::Error::invalid_length(
-                        3,
-                        &"expected 2 parameters",
+                        4,
+                        &"expected 3 parameters",
                     ));
                 }
 
-                Ok(EstimateFeeParams { request, block_id })
+                Ok(EstimateFeeParams {
+                    request,
+                    simulation_flags,
+                    block_id,
+                })
             }
 
             #[allow(unused_variables)]
@@ -2098,6 +2110,7 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
                 #[derive(Deserialize)]
                 struct Helper {
                     request: Vec<BroadcastedTxn>,
+                    simulation_flags: Vec<SimulationFlagForEstimateFee>,
                     block_id: BlockId,
                 }
 
@@ -2106,6 +2119,7 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
 
                 Ok(EstimateFeeParams {
                     request: helper.request,
+                    simulation_flags: helper.simulation_flags,
                     block_id: helper.block_id,
                 })
             }
