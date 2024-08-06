@@ -825,8 +825,6 @@ pub struct StructAbiEntry {
     /// The struct name
     pub name: String,
     pub size: u64,
-    #[serde(rename = "type")]
-    pub ty: StructAbiType,
 }
 
 pub type StructAbiType = String;
