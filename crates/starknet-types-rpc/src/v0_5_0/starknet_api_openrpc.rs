@@ -35,6 +35,8 @@ pub struct BlockHeader {
     /// The block number (its height)
     pub block_number: BlockNumber,
     pub l1_gas_price: ResourcePrice,
+    pub l1_data_gas_price: ResourcePrice,
+    pub l1_da_mode: L1DataAvailabilityMode,
     /// The new global state root
     pub new_root: Felt,
     /// The hash of this block's parent
@@ -45,6 +47,14 @@ pub struct BlockHeader {
     pub starknet_version: String,
     /// The time in which the block was created, encoded in Unix time
     pub timestamp: u64,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum L1DataAvailabilityMode {
+    #[serde(rename = "BLOB")]
+    Blob,
+    #[serde(rename = "CALLDATA")]
+    Calldata,
 }
 
 /// The block's number (its height)
@@ -116,6 +126,8 @@ pub struct BroadcastedDeclareTxnV2 {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address,
     pub signature: Signature,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -312,6 +324,8 @@ pub struct DeployAccountTxnV1 {
     pub max_fee: Felt,
     pub nonce: Felt,
     pub signature: Signature,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 /// Deploys an account contract, charges fee from the pre-funded account addresses
@@ -432,25 +446,23 @@ pub type EventAbiType = String;
 /// The resources consumed by the transaction
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecutionResources {
-    /// the number of BITWISE builtin instances
-    pub bitwise_builtin_applications: u64,
     /// the number of EC_OP builtin instances
     pub ec_op_builtin_applications: u64,
-    /// the number of ECDSA builtin instances
-    pub ecdsa_builtin_applications: u64,
-    /// The number of KECCAK builtin instances
-    pub keccak_builtin_applications: u64,
-    /// The number of unused memory cells (each cell is roughly equivalent to a step)
     #[serde(default)]
     pub memory_holes: Option<u64>,
     /// The number of Pedersen builtin instances
     pub pedersen_builtin_applications: u64,
-    /// The number of Poseidon builtin instances
-    pub poseidon_builtin_applications: u64,
     /// The number of RANGE_CHECK builtin instances
     pub range_check_builtin_applications: u64,
     /// The number of Cairo steps used
     pub steps: u64,
+    pub data_availability: DataAvailability,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataAvailability {
+    pub l1_gas: u64,
+    pub l1_data_gas: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -555,6 +567,8 @@ pub struct InvokeTxnV1 {
     pub nonce: Felt,
     pub sender_address: Address,
     pub signature: Signature,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -726,9 +740,9 @@ pub struct ResourceLimits {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourcePrice {
-    /// the price of one unit of the given resource, denominated in strk
+    /// the price of one unit of the given resource, denominated in fri
     #[serde(with = "NumAsHex")]
-    pub price_in_strk: u64,
+    pub price_in_fri: u64,
     /// the price of one unit of the given resource, denominated in wei
     #[serde(with = "NumAsHex")]
     pub price_in_wei: u64,
@@ -803,7 +817,7 @@ pub struct StateUpdate {
 }
 
 /// A storage key. Represented as up to 62 hex digits, 3 bits, and 5 leading zeroes.
-pub type StorageKey = String;
+pub type StorageKey = Felt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StructAbiEntry {
