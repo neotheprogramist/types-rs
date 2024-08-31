@@ -121,6 +121,8 @@ pub struct BroadcastedDeclareTxnV1<F: Default> {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -135,6 +137,8 @@ pub struct BroadcastedDeclareTxnV2<F: Default> {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -158,9 +162,11 @@ pub struct BroadcastedDeclareTxnV3<F: Default> {
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
+    pub tip: F,
     /// Version of the transaction scheme
-    pub version: Version,
+    // pub version: F,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 /// Version of the transaction scheme
@@ -313,11 +319,39 @@ pub struct KeyValuePair<F> {
 }
 
 /// Specifies a storage domain in Starknet. Each domain has different gurantess regarding availability
-#[derive(Eq, Hash, PartialEq, Serialize, Deserialize, Clone, Debug)]
-pub enum DaMode {
+#[derive(Eq, Hash, PartialEq, Deserialize, Serialize, Clone, Debug)]
+pub enum 
+DaMode {
     L1,
     L2,
 }
+
+// impl<'de> Deserialize<'de> for DaMode {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//     where
+//         D: serde::Deserializer<'de>,
+//     {
+//         let value = u32::deserialize(deserializer)?;
+//         match value {
+//             0 => Ok(DaMode::L1),
+//             1 => Ok(DaMode::L2),
+//             _ => Err(serde::de::Error::custom("Invalid value for DaMode")),
+//         }
+//     }
+// }
+
+// impl Serialize for DaMode {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         let value = match *self {
+//             DaMode::L1 => 0,
+//             DaMode::L2 => 1,
+//         };
+//         serializer.serialize_u32(value)
+//     }
+// }
 
 #[derive(Eq, Hash, PartialEq, Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "version")]
@@ -397,6 +431,8 @@ pub struct DeclareTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: U64,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -438,6 +474,8 @@ pub struct DeployAccountTxnV1<F> {
     pub max_fee: F,
     pub nonce: F,
     pub signature: Signature<F>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 /// Deploys an account contract, charges fee from the pre-funded account addresses
@@ -460,7 +498,9 @@ pub struct DeployAccountTxnV3<F> {
     pub resource_bounds: ResourceBoundsMapping,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
+    pub tip: F,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -703,8 +743,9 @@ pub struct InvokeTxnV1<F> {
     pub nonce: F,
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
-
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InvokeTxnV3<F> {
     /// data needed to deploy the account contract from which this tx will be initiated
@@ -723,7 +764,9 @@ pub struct InvokeTxnV3<F> {
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
+    pub tip: F,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -846,6 +889,16 @@ pub struct ResourceBounds {
     /// the max price per unit of this resource for this tx
     pub max_price_per_unit: U128,
 }
+
+/// Execution resource.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+pub enum Resource {
+    #[serde(rename = "L1_GAS")]
+    L1Gas,
+    #[serde(rename = "L2_GAS")]
+    L2Gas,
+}
+
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ResourceBoundsMapping {
@@ -1004,6 +1057,13 @@ pub enum TxnFinalityStatus {
     L1,
     #[serde(rename = "ACCEPTED_ON_L2")]
     L2,
+}
+
+/// A more idiomatic way to access `execution_status` and `revert_reason`.
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum ExecutionResult {
+    Succeeded,
+    Reverted,
 }
 
 /// The transaction hash, as assigned in StarkNet
