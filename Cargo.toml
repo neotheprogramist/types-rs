@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = [ "crates/pathfinder",
     "crates/starknet-types-core",
     "crates/starknet-types-rpc",
 ]
