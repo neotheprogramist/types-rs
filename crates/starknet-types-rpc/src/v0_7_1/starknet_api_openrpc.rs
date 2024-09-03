@@ -320,38 +320,10 @@ pub struct KeyValuePair<F> {
 
 /// Specifies a storage domain in Starknet. Each domain has different gurantess regarding availability
 #[derive(Eq, Hash, PartialEq, Deserialize, Serialize, Clone, Debug)]
-pub enum 
-DaMode {
+pub enum DaMode {
     L1,
     L2,
 }
-
-// impl<'de> Deserialize<'de> for DaMode {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//     where
-//         D: serde::Deserializer<'de>,
-//     {
-//         let value = u32::deserialize(deserializer)?;
-//         match value {
-//             0 => Ok(DaMode::L1),
-//             1 => Ok(DaMode::L2),
-//             _ => Err(serde::de::Error::custom("Invalid value for DaMode")),
-//         }
-//     }
-// }
-
-// impl Serialize for DaMode {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         let value = match *self {
-//             DaMode::L1 => 0,
-//             DaMode::L2 => 1,
-//         };
-//         serializer.serialize_u32(value)
-//     }
-// }
 
 #[derive(Eq, Hash, PartialEq, Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "version")]
@@ -899,7 +871,6 @@ pub enum Resource {
     L2Gas,
 }
 
-
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ResourceBoundsMapping {
     /// The max amount and max price per unit of L1 gas used in this tx
@@ -1057,13 +1028,6 @@ pub enum TxnFinalityStatus {
     L1,
     #[serde(rename = "ACCEPTED_ON_L2")]
     L2,
-}
-
-/// A more idiomatic way to access `execution_status` and `revert_reason`.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum ExecutionResult {
-    Succeeded,
-    Reverted,
 }
 
 /// The transaction hash, as assigned in StarkNet

@@ -587,7 +587,6 @@ pub struct InvokeTxnV1 {
     pub signature: Signature,
     #[serde(rename = "type")]
     pub type_: Option<String>,
-
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
