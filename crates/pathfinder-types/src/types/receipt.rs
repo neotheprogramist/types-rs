@@ -2,7 +2,7 @@ use fake::{Dummy, Fake, Faker};
 use starknet_types_core::felt::Felt;
 
 
-#[derive(Clone, Default, Debug, PartialEq, Eq, Dummy)]
+#[derive(Clone, Default, Debug, PartialEq, Eq)]
 pub struct Receipt {
     pub actual_fee: Felt,
     pub execution_resources: ExecutionResources,

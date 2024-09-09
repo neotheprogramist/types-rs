@@ -9,7 +9,7 @@ use serde_with::serde_conv;
 
 
 #[serde_with::serde_as]
-#[derive(Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq, Dummy)]
+#[derive(Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct Event {
     #[serde_as(as = "Vec<EventDataAsDecimalStr>")]
@@ -22,20 +22,18 @@ pub struct Event {
 serde_conv!(
     EventDataAsDecimalStr,
     Felt,
-    |serialize_me: &Felt| starkhash_to_dec_str(&serialize_me.value),
-    |s: &str| starkhash_from_dec_str(s).map(|felt| Felt::new(felt))
+    |serialize_me: &Felt| starkhash_to_dec_str(&serialize_me),
+    |s: &str| starkhash_from_dec_str(s)
 );
-
 serde_conv!(
     EventKeyAsDecimalStr,
     Felt,
-    |serialize_me: &Felt| starkhash_to_dec_str(&serialize_me.get_value()),
-    |s: &str| starkhash_from_dec_str(s).map(|felt| Felt::new(felt))
-);
+    |serialize_me: &Felt| starkhash_to_dec_str(&serialize_me),
+    |s: &str| starkhash_from_dec_str(s));
 
 /// A helper conversion function. Only use with __sequencer API related types__.
 fn starkhash_to_dec_str(h: &Felt) -> String {
-    let b = h.to_be_bytes();
+    let b = h.to_bytes_be();
     let b = BigUint::from_bytes_be(&b);
     b.to_str_radix(10)
 }
@@ -44,11 +42,11 @@ fn starkhash_to_dec_str(h: &Felt) -> String {
 fn starkhash_from_dec_str(s: &str) -> Result<Felt, anyhow::Error> {
     match BigUint::from_str(s) {
         Ok(b) => {
-            let h = Felt::from_be_slice(&b.to_bytes_be())?;
+            let h = Felt::from_bytes_be_slice(&b.to_bytes_be());
             Ok(h)
         }
         Err(_) => {
-            let h = Felt::from_hex_str(s)?;
+            let h = Felt::from_dec_str(s).unwrap();
             Ok(h)
         }
     }

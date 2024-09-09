@@ -1,6 +1,6 @@
 use bitvec::prelude::*;
 use starknet_types_core::felt::Felt;
-use pathfinder_storage::StoredNode;
+use super::trie::StoredNode;
 
 /// Read-only storage used by the [Merkle tree](crate::tree::MerkleTree).
 pub trait Storage {

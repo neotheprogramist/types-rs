@@ -149,6 +149,7 @@ impl Felt {
             .expect("from_bytes_le shouldn't fail for these many bytes")
     }
 
+
     /// Creates a new [Felt] from its big-endian representation in a [u8] slice.
     /// This is as performant as [from_bytes_le](Felt::from_bytes_le_slice).
     /// All bytes in the slice are consumed, as if first creating a big integer

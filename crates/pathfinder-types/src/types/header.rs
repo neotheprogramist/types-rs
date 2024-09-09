@@ -6,7 +6,7 @@ use anyhow;
 use starknet_types_core::felt::Felt;
 
 
-#[derive(Debug, Clone, PartialEq, Eq, Default, Dummy)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct BlockHeader {
     pub hash: Felt,
     pub parent_hash: Felt,
