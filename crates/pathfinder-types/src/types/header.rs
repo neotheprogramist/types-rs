@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use fake::Dummy;
 use anyhow;
+use serde::{Deserialize, Serialize};
 use starknet_types_core::felt::Felt;
 
 
@@ -28,7 +29,7 @@ pub struct BlockHeader {
     pub l1_da_mode: L1DataAvailabilityMode,
     pub receipt_commitment: Felt,
     pub state_diff_commitment: Felt,
-    pub state_diff_length: u64,
+    pub state_diff_length: u32,
 }
 
 #[derive(
@@ -41,148 +42,20 @@ pub enum L1DataAvailabilityMode {
     Blob,
 }
 
-// #[derive(Debug, Clone, PartialEq, Default, Dummy)]
-// pub struct SignedBlockHeader {
-//     pub header: BlockHeader,
-//     pub signature: BlockCommitmentSignature,
-// }
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SignedBlockHeader {
+    pub header: BlockHeader,
+    pub signature: BlockCommitmentSignature,
+}
 
-// pub struct BlockHeaderBuilder(BlockHeader);
-
-// impl BlockHeader {
-//     /// Creates a [builder](BlockHeaderBuilder) with all fields initialized to
-//     /// default values.
-//     pub fn builder() -> BlockHeaderBuilder {
-//         BlockHeaderBuilder(BlockHeader::default())
-//     }
-
-//     /// Creates a [builder](BlockHeaderBuilder) with an incremented block number
-//     /// and parent hash set to this block's hash.
-//     pub fn child_builder(&self) -> BlockHeaderBuilder {
-//         BlockHeaderBuilder(BlockHeader::default())
-//             .with_number(self.number + 1)
-//             .with_parent_hash(self.hash)
-//     }
-
-//     /// Creates a [StateUpdate] with the block hash and state commitment fields
-//     /// initialized to match this header.
-//     pub fn init_state_update(&self) -> StateUpdate {
-//         StateUpdate::default()
-//             .with_block_hash(self.hash)
-//             .with_state_commitment(self.state_commitment)
-//     }
-// }
-
-// impl BlockHeaderBuilder {
-//     pub fn with_number(mut self, number: BlockNumber) -> Self {
-//         self.0.number = number;
-//         self
-//     }
-
-//     pub fn with_parent_hash(mut self, parent_hash: BlockHash) -> Self {
-//         self.0.parent_hash = parent_hash;
-//         self
-//     }
-
-//     pub fn with_state_commitment(mut self, state_commmitment: StateCommitment) -> Self {
-//         self.0.state_commitment = state_commmitment;
-//         self
-//     }
-
-//     /// Sets the [StateCommitment] by calculating its value from the current
-//     /// [StorageCommitment] and [ClassCommitment].
-//     pub fn with_calculated_state_commitment(mut self) -> Self {
-//         self.0.state_commitment =
-//             StateCommitment::calculate(self.0.storage_commitment, self.0.class_commitment);
-//         self
-//     }
-
-//     pub fn with_timestamp(mut self, timestamp: BlockTimestamp) -> Self {
-//         self.0.timestamp = timestamp;
-//         self
-//     }
-
-//     pub fn with_eth_l1_gas_price(mut self, eth_l1_gas_price: GasPrice) -> Self {
-//         self.0.eth_l1_gas_price = eth_l1_gas_price;
-//         self
-//     }
-
-//     pub fn with_strk_l1_gas_price(mut self, strk_l1_gas_price: GasPrice) -> Self {
-//         self.0.strk_l1_gas_price = strk_l1_gas_price;
-//         self
-//     }
-
-//     pub fn with_eth_l1_data_gas_price(mut self, eth_l1_data_gas_price: GasPrice) -> Self {
-//         self.0.eth_l1_data_gas_price = eth_l1_data_gas_price;
-//         self
-//     }
-
-//     pub fn with_strk_l1_data_gas_price(mut self, strk_l1_data_gas_price: GasPrice) -> Self {
-//         self.0.strk_l1_data_gas_price = strk_l1_data_gas_price;
-//         self
-//     }
-
-//     pub fn with_sequencer_address(mut self, sequencer_address: SequencerAddress) -> Self {
-//         self.0.sequencer_address = sequencer_address;
-//         self
-//     }
-
-//     pub fn with_transaction_commitment(
-//         mut self,
-//         transaction_commitment: TransactionCommitment,
-//     ) -> Self {
-//         self.0.transaction_commitment = transaction_commitment;
-//         self
-//     }
-
-//     pub fn with_event_commitment(mut self, event_commitment: EventCommitment) -> Self {
-//         self.0.event_commitment = event_commitment;
-//         self
-//     }
-
-//     pub fn with_storage_commitment(mut self, storage_commitment: StorageCommitment) -> Self {
-//         self.0.storage_commitment = storage_commitment;
-//         self
-//     }
-
-//     pub fn with_class_commitment(mut self, class_commitment: ClassCommitment) -> Self {
-//         self.0.class_commitment = class_commitment;
-//         self
-//     }
-
-//     pub fn with_starknet_version(mut self, starknet_version: StarknetVersion) -> Self {
-//         self.0.starknet_version = starknet_version;
-//         self
-//     }
-
-//     pub fn with_transaction_count(mut self, transaction_count: usize) -> Self {
-//         self.0.transaction_count = transaction_count;
-//         self
-//     }
-
-//     pub fn with_event_count(mut self, event_count: usize) -> Self {
-//         self.0.event_count = event_count;
-//         self
-//     }
-
-//     pub fn with_l1_da_mode(mut self, l1_da_mode: L1DataAvailabilityMode) -> Self {
-//         self.0.l1_da_mode = l1_da_mode;
-//         self
-//     }
-
-//     pub fn with_receipt_commitment(mut self, receipt_commitment: ReceiptCommitment) -> Self {
-//         self.0.receipt_commitment = receipt_commitment;
-//         self
-//     }
-
-//     pub fn finalize_with_hash(mut self, hash: BlockHash) -> BlockHeader {
-//         self.0.hash = hash;
-//         self.0
-//     }
-// }
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+pub struct BlockCommitmentSignature {
+    pub r: Felt,
+    pub s: Felt,
+}
 
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Dummy)]
+#[derive(Clone, Serialize, Deserialize,Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Dummy)]
 pub struct StarknetVersion(u8, u8, u8, u8);
 
 impl StarknetVersion {

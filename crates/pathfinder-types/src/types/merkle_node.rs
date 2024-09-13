@@ -7,7 +7,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::types::hash::PedersenHash;
 use bitvec::order::Msb0;
 use bitvec::prelude::*;
 use bitvec::slice::BitSlice;
@@ -195,120 +194,12 @@ impl EdgeNode {
 
 #[cfg(test)]
 mod tests {
-
-    use std::cell::RefCell;
-    use std::rc::Rc;
-
     use crate::types::hash::PedersenHash;
     use crate::types::merkle_node::EdgeNode;
     use bitvec::order::Msb0;
     use bitvec::prelude::*;
-    use bitvec::slice::BitSlice;
 
-    use crate::types::hash::FeltHash;
     use starknet_types_core::felt::Felt;
-    //     use crate::types::hash::PedersenHash;
-
-    //     use super::*;
-
-    //     mod direction {
-    //         use Direction::*;
-
-    //         use super::*;
-
-    //         #[test]
-    //         fn invert() {
-    //             assert_eq!(Left.invert(), Right);
-    //             assert_eq!(Right.invert(), Left);
-    //         }
-
-    //         #[test]
-    //         fn bool_round_trip() {
-    //             assert_eq!(Direction::from(bool::from(Left)), Left);
-    //             assert_eq!(Direction::from(bool::from(Right)), Right);
-    //         }
-
-    //         #[test]
-    //         fn right_is_true() {
-    //             assert!(bool::from(Right));
-    //         }
-
-    //         #[test]
-    //         fn left_is_false() {
-    //             assert!(!bool::from(Left));
-    //         }
-    //     }
-
-    //     mod binary {
-    //         use bitvec::bitvec;
-    //         use starknet_types_core::felt::Felt;
-
-    //         use super::*;
-
-    //         #[test]
-    //         fn direction() {
-    //             let uut = BinaryNode {
-    //                 storage_index: None,
-    //                 height: 1,
-    //                 left: Rc::new(RefCell::new(InternalNode::Unresolved(1))),
-    //                 right: Rc::new(RefCell::new(InternalNode::Unresolved(2))),
-    //             };
-
-    //             let mut zero_key = bitvec![u8, Msb0; 1; 251];
-    //             zero_key.set(1, false);
-
-    //             let mut one_key = bitvec![u8, Msb0; 0; 251];
-    //             one_key.set(1, true);
-
-    //             let zero_direction = uut.direction(&zero_key);
-    //             let one_direction = uut.direction(&one_key);
-
-    //             assert_eq!(zero_direction, Direction::from(false));
-    //             assert_eq!(one_direction, Direction::from(true));
-    //         }
-
-    //         #[test]
-    //         fn get_child() {
-    //             let left = Rc::new(RefCell::new(InternalNode::Unresolved(1)));
-    //             let right = Rc::new(RefCell::new(InternalNode::Unresolved(2)));
-
-    //             let uut = BinaryNode {
-    //                 storage_index: None,
-    //                 height: 1,
-    //                 left: left.clone(),
-    //                 right: right.clone(),
-    //             };
-
-    //             use Direction::*;
-    //             assert_eq!(uut.get_child(Left), left);
-    //             assert_eq!(uut.get_child(Right), right);
-    //         }
-
-    //         #[test]
-    //         fn hash() {
-    //             // Test data taken from starkware cairo-lang repo:
-    //             // https://github.com/starkware-libs/cairo-lang/blob/fc97bdd8322a7df043c87c371634b26c15ed6cee/src/starkware/starkware_utils/commitment_tree/patricia_tree/nodes_test.py#L14
-    //             //
-    //             // Note that the hash function must be exchanged for `async_stark_hash_func`,
-    //             // otherwise it just uses some other test hash function.
-    //             let expected = Felt::from_hex_str(
-    //                 "0615bb8d47888d2987ad0c63fc06e9e771930986a4dd8adc55617febfcf3639e",
-    //             )
-    //             .unwrap();
-    //             let left = Felt::from("0x1234");
-    //             let right = Felt::from("0xabcd");
-
-    //             let hash = BinaryNode::calculate_hash::<PedersenHash>(left, right);
-
-    //             assert_eq!(hash, expected);
-    //         }
-    //     }
-
-    //     mod edge {
-    //         use bitvec::bitvec;
-    //         use starknet_types_core::felt::Felt;
-
-    //         use super::*;
 
     #[test]
     fn hash() {
@@ -331,75 +222,3 @@ mod tests {
     }
 }
 
-//         mod path_matches {
-//             use starknet_types_core::felt::Felt;
-//             use super::*;
-
-//             #[test]
-//             fn full() {
-//                 let key = Felt::from_hex_unchecked("0x123456789abcdef");
-//                 let child = Rc::new(RefCell::new(InternalNode::Unresolved(1)));
-
-//                 let uut = EdgeNode {
-//                     storage_index: None,
-//                     height: 0,
-//                     path: key.view_bits().to_bitvec(),
-//                     child,
-//                 };
-
-//                 assert!(uut.path_matches(key.view_bits()));
-//             }
-
-//             #[test]
-//             fn prefix() {
-//                 let key = Felt::from("0x123456789abcdef");
-//                 let child = Rc::new(RefCell::new(InternalNode::Unresolved(1)));
-
-//                 let path = key.view_bits()[..45].to_bitvec();
-
-//                 let uut = EdgeNode {
-//                     storage_index: None,
-//                     height: 0,
-//                     path,
-//                     child,
-//                 };
-
-//                 assert!(uut.path_matches(key.view_bits()));
-//             }
-
-//             #[test]
-//             fn suffix() {
-//                 let key = Felt::from("0x123456789abcdef");
-//                 let child = Rc::new(RefCell::new(InternalNode::Unresolved(1)));
-
-//                 let path = key.view_bits()[50..].to_bitvec();
-
-//                 let uut = EdgeNode {
-//                     storage_index: None,
-//                     height: 50,
-//                     path,
-//                     child,
-//                 };
-
-//                 assert!(uut.path_matches(key.view_bits()));
-//             }
-
-//             #[test]
-//             fn middle_slice() {
-//                 let key = Felt::from("0x123456789abcdef");
-//                 let child = Rc::new(RefCell::new(InternalNode::Unresolved(1)));
-
-//                 let path = key.view_bits()[230..235].to_bitvec();
-
-//                 let uut = EdgeNode {
-//                     storage_index: None,
-//                     height: 230,
-//                     path,
-//                     child,
-//                 };
-
-//                 assert!(uut.path_matches(key.view_bits()));
-//             }
-//         }
-//     }
-// }

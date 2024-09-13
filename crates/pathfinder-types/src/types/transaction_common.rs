@@ -1,4 +1,5 @@
 use fake::{Dummy, Fake, Faker};
+use serde::Deserialize;
 // use pathfinder_crypto::hash::{HashChain as PedersenHasher, PoseidonHasher};
 use starknet_types_core::felt::Felt;
 // use primitive_types::H256;
@@ -13,8 +14,9 @@ use starknet_types_core::felt::Felt;
 //     Tip,
 // };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Debug, PartialEq, Eq)]
 pub struct Transaction {
+    #[serde(rename = "transaction_hash")] 
     pub hash: Felt,
     pub variant: TransactionVariant,
 }
@@ -44,7 +46,7 @@ impl Transaction {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Debug, PartialEq, Eq)]
 pub enum TransactionVariant {
     DeclareV0(DeclareTransactionV0V1),
     DeclareV1(DeclareTransactionV0V1),
@@ -75,77 +77,6 @@ pub enum TransactionKind {
     L1Handler,
 }
 
-// impl TransactionVariant {
-//     #[must_use = "Should act on verification result"]
-//     fn verify_hash(&self, chain_id: Felt, expected: Felt) -> bool {
-//         if expected == self.calculate_hash(chain_id, false) {
-//             return true;
-//         }
-
-//         // Some transaction variants had a different hash calculation in ancient times.
-//         if Some(expected) == self.calculate_legacy_hash(chain_id) {
-//             return true;
-//         }
-
-//         // L1 Handlers had a specific hash calculation for Starknet v0.7 blocks.
-//         if let Self::L1Handler(l1_handler) = self {
-//             if expected == l1_handler.calculate_v07_hash(chain_id) {
-//                 return true;
-//             }
-//         }
-
-//         false
-//     }
-
-    // pub fn calculate_hash(&self, chain_id: Felt, query_only: bool) -> Felt {
-    //     match self {
-    //         TransactionVariant::DeclareV0(tx) => tx.calculate_hash_v0(chain_id, query_only),
-    //         TransactionVariant::DeclareV1(tx) => tx.calculate_hash_v1(chain_id, query_only),
-    //         TransactionVariant::DeclareV2(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::DeclareV3(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::DeployV0(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::DeployV1(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::DeployAccountV1(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::DeployAccountV3(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::InvokeV0(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::InvokeV1(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::InvokeV3(tx) => tx.calculate_hash(chain_id, query_only),
-    //         TransactionVariant::L1Handler(tx) => tx.calculate_hash(chain_id),
-    //     }
-    // }
-
-    // pub fn kind(&self) -> TransactionKind {
-    //     match self {
-    //         TransactionVariant::DeclareV0(_) => TransactionKind::Declare,
-    //         TransactionVariant::DeclareV1(_) => TransactionKind::Declare,
-    //         TransactionVariant::DeclareV2(_) => TransactionKind::Declare,
-    //         TransactionVariant::DeclareV3(_) => TransactionKind::Declare,
-    //         TransactionVariant::DeployV0(_) => TransactionKind::Deploy,
-    //         TransactionVariant::DeployV1(_) => TransactionKind::Deploy,
-    //         TransactionVariant::DeployAccountV1(_) => TransactionKind::DeployAccount,
-    //         TransactionVariant::DeployAccountV3(_) => TransactionKind::DeployAccount,
-    //         TransactionVariant::InvokeV0(_) => TransactionKind::Invoke,
-    //         TransactionVariant::InvokeV1(_) => TransactionKind::Invoke,
-    //         TransactionVariant::InvokeV3(_) => TransactionKind::Invoke,
-    //         TransactionVariant::L1Handler(_) => TransactionKind::L1Handler,
-    //     }
-    // }
-
-    /// Some variants had a different hash calculations for blocks around
-    /// Starknet v0.8 and earlier. The hash excluded the transaction version
-    /// and nonce.
-//     fn calculate_legacy_hash(&self, chain_id: Felt) -> Option<Felt> {
-//         let hash = match self {
-//             TransactionVariant::DeployV0(tx) => tx.calculate_legacy_hash(chain_id),
-//             TransactionVariant::DeployV1(tx) => tx.calculate_legacy_hash(chain_id),
-//             TransactionVariant::InvokeV0(tx) => tx.calculate_legacy_hash(chain_id),
-//             TransactionVariant::L1Handler(tx) => tx.calculate_legacy_hash(chain_id),
-//             _ => return None,
-//         };
-
-//         Some(hash)
-//     }
-// }
 
 impl From<DeclareTransactionV2> for TransactionVariant {
     fn from(value: DeclareTransactionV2) -> Self {
@@ -157,16 +88,7 @@ impl From<DeclareTransactionV3> for TransactionVariant {
         Self::DeclareV3(value)
     }
 }
-// impl From<DeployTransactionV0> for TransactionVariant {
-//     fn from(value: DeployTransactionV0) -> Self {
-//         Self::DeployV0(value)
-//     }
-// }
-// impl From<DeployTransactionV1> for TransactionVariant {
-//     fn from(value: DeployTransactionV1) -> Self {
-//         Self::DeployV1(value)
-//     }
-// }
+
 impl From<DeployAccountTransactionV1> for TransactionVariant {
     fn from(value: DeployAccountTransactionV1) -> Self {
         Self::DeployAccountV1(value)
@@ -198,7 +120,7 @@ impl From<InvokeTransactionV3> for TransactionVariant {
 //     }
 // }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeclareTransactionV0V1 {
     pub class_hash: Felt,
     pub max_fee: Felt,
@@ -207,7 +129,7 @@ pub struct DeclareTransactionV0V1 {
     pub sender_address: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeclareTransactionV2 {
     pub class_hash: Felt,
     pub max_fee: Felt,
@@ -217,7 +139,7 @@ pub struct DeclareTransactionV2 {
     pub compiled_class_hash: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeclareTransactionV3 {
     pub class_hash: Felt,
     pub nonce: Felt,
@@ -232,7 +154,7 @@ pub struct DeclareTransactionV3 {
     pub compiled_class_hash: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeployTransactionV0 {
     pub class_hash: Felt,
     pub contract_address: Felt,
@@ -248,7 +170,7 @@ pub struct DeployTransactionV1 {
     pub constructor_calldata: Vec<Felt>,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeployAccountTransactionV1 {
     pub contract_address: Felt,
     pub max_fee: Felt,
@@ -259,7 +181,7 @@ pub struct DeployAccountTransactionV1 {
     pub class_hash: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct DeployAccountTransactionV3 {
     pub contract_address: Felt,
     pub signature: Vec<Felt>,
@@ -274,7 +196,7 @@ pub struct DeployAccountTransactionV3 {
     pub class_hash: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct InvokeTransactionV0 {
     pub calldata: Vec<Felt>,
     pub sender_address: Felt,
@@ -284,7 +206,7 @@ pub struct InvokeTransactionV0 {
     pub signature: Vec<Felt>,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct InvokeTransactionV1 {
     pub calldata: Vec<Felt>,
     pub sender_address: Felt,
@@ -293,7 +215,7 @@ pub struct InvokeTransactionV1 {
     pub nonce: Felt,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct InvokeTransactionV3 {
     pub signature: Vec<Felt>,
     pub nonce: Felt,
@@ -315,25 +237,25 @@ pub struct InvokeTransactionV3 {
 //     pub calldata: Vec<CallParam>,
 // }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Dummy)]
+#[derive(Copy, Deserialize, Clone, Debug, PartialEq, Eq, Dummy)]
 pub enum EntryPointType {
     External,
     L1Handler,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Dummy)]
+#[derive(Copy, Deserialize, Clone, Debug, Default, PartialEq, Eq, Dummy)]
 pub struct ResourceBounds {
     pub l1_gas: ResourceBound,
     pub l2_gas: ResourceBound,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Dummy)]
+#[derive(Copy, Clone, Deserialize, Debug, Default, PartialEq, Eq, Dummy)]
 pub struct ResourceBound {
     pub max_amount: u64,
     pub max_price_per_unit: u128,
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Dummy)]
+#[derive(Copy, Deserialize, Clone, Debug, Default, PartialEq, Eq, Dummy)]
 pub enum DataAvailabilityMode {
     #[default]
     L1,
