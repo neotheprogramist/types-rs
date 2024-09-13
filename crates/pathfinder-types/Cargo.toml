@@ -19,8 +19,8 @@ num-bigint = "0.4.4"
 serde = { version = "1", default-features = false, features = ["derive"] }
 serde_with = "3.9.0"
 serde_json = "1.0.127"
-starknet-types-core = { git = "https://github.com/neotheprogramist/types-rs.git", branch = "fix/types-v7" }
-starknet-types-rpc = { git = "https://github.com/neotheprogramist/types-rs.git", branch = "fix/types-v7" }
+starknet-types-core = { path = "../starknet-types-core" }
+starknet-types-rpc = { path = "../starknet-types-rpc" }
 sha3 = "0.10"
 rayon = "1.8.0"
 starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-devnet-rs.git", branch = "feat/1-modified-blockifier" }
