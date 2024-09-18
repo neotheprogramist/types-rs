@@ -395,6 +395,7 @@ pub struct DeclareTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: U64,
+
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
