@@ -53,7 +53,6 @@ pub struct BlockHeaderData {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub struct BlockHeader {
-
     pub block_hash: BlockHash,
     pub parent_hash: BlockHash,
     pub block_number: BlockNumber,

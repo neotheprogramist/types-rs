@@ -12,16 +12,17 @@ anyhow = "1.0.75"
 blockifier = { git = "https://github.com/neotheprogramist/blockifier.git", branch = "feat/1-serde", features = [
   "testing",
 ] }
-bitvec = "1.0.1"
 bincode = "2.0.0-rc.3"
+bitvec = "1.0.1"
 fake = { version = "2.8.0", features = ["derive"] }
+indexmap = "2.3.0"
 num-bigint = "0.4.4"
+rayon = "1.8.0"
 serde = { version = "1", default-features = false, features = ["derive"] }
-serde_with = "3.9.0"
 serde_json = "1.0.127"
+serde_with = "3.9.0"
+sha3 = "0.10"
+starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-devnet-rs.git", branch = "feat/1-modified-blockifier" }
 starknet-types-core = { path = "../starknet-types-core" }
 starknet-types-rpc = { path = "../starknet-types-rpc" }
-sha3 = "0.10"
-rayon = "1.8.0"
-starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-devnet-rs.git", branch = "feat/1-modified-blockifier" }
 

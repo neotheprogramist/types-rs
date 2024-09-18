@@ -1,8 +1,8 @@
-use std::io::Write;
+use std::io::{self, Write};
 // use std::sync::LazyLock;
 
 use super::block::BlockHeaderData;
-use super::header::{BlockHeader, L1DataAvailabilityMode,};
+use super::header::{BlockHeader, L1DataAvailabilityMode};
 use super::receipt::ThinReceipt;
 use crate::types::event::Event;
 use crate::types::hash::{FeltHash, PoseidonHash};
@@ -12,12 +12,10 @@ use starknet_types_rpc::v0_7_1::starknet_api_openrpc::{
     DeclareTxn, DeployAccountTxn, InvokeTxn, Txn, TxnWithHash,
 };
 
-
 use super::transaction::TransactionOrEventTree;
 use sha3::Digest;
 use starknet_types_core::felt::Felt;
 // use starknet_gateway_types::reply::Block;
-
 
 impl BlockHeaderData {
     pub fn from_header(header: &BlockHeader) -> Self {
@@ -46,27 +44,20 @@ impl BlockHeaderData {
             state_diff_commitment: header.state_diff_commitment,
         }
     }
-
 }
 
-pub fn compute_final_hash(header: &BlockHeaderData) -> Result<Felt> {
+pub fn compute_final_hash(header: &BlockHeaderData) -> Result<Felt, io::Error> {
     // Concatenate the transaction count, event count, state diff length, and L1
     // data availability mode into a single felt.
     let mut concat_counts = [0u8; 32];
     let mut writer = concat_counts.as_mut_slice();
-    writer
-        .write_all(&header.transaction_count.to_be_bytes())
-        .unwrap();
-    writer.write_all(&header.event_count.to_be_bytes()).unwrap();
-    writer
-        .write_all(&header.state_diff_length.to_be_bytes())
-        .unwrap();
-    writer
-        .write_all(&[match header.l1_da_mode {
-            L1DataAvailabilityMode::Calldata => 0,
-            L1DataAvailabilityMode::Blob => 0b10000000,
-        }])
-        .unwrap();
+    writer.write_all(&header.transaction_count.to_be_bytes())?;
+    writer.write_all(&header.event_count.to_be_bytes())?;
+    writer.write_all(&header.state_diff_length.to_be_bytes())?;
+    writer.write_all(&[match header.l1_da_mode {
+        L1DataAvailabilityMode::Calldata => 0,
+        L1DataAvailabilityMode::Blob => 0b10000000,
+    }])?;
     let concat_counts = Felt::from_bytes_be(&concat_counts);
     // Hash the block header.
     let mut hasher = PoseidonHasher::new();
@@ -173,8 +164,6 @@ fn calculate_commitment_root<H: FeltHash>(hashes: Vec<Felt>) -> Result<Felt> {
     tree.commit()
 }
 
-
-
 /// Compute the combined hash of the transaction hash and the signature.
 ///
 /// [Reference code from StarkWare](https://github.com/starkware-libs/starknet-api/blob/5565e5282f5fead364a41e49c173940fd83dee00/src/block_hash/block_hash_calculator.rs#L95-L98).
@@ -207,8 +196,6 @@ fn calculate_transaction_hash_with_signature(tx: &TxnWithHash<Felt>) -> Felt {
     hasher.finalize().into()
 }
 
-
-
 /// Calculate event commitment hash value.
 ///
 /// The event commitment is the root of the Patricia Merkle tree with height 64
@@ -225,7 +212,6 @@ pub fn calculate_event_commitment(transaction_events: &Vec<(Felt, Vec<Event>)>) 
 
     calculate_commitment_root::<PoseidonHash>(event_hashes)
 }
-
 
 /// Calculate the hash of an event.
 /// [Reference code from StarkWare](https://github.com/starkware-libs/starknet-api/blob/5565e5282f5fead364a41e49c173940fd83dee00/src/block_hash/event_commitment.rs#L33).
