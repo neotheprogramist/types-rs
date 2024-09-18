@@ -121,8 +121,6 @@ pub struct BroadcastedDeclareTxnV1<F: Default> {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -137,8 +135,6 @@ pub struct BroadcastedDeclareTxnV2<F: Default> {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -163,10 +159,6 @@ pub struct BroadcastedDeclareTxnV3<F: Default> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: F,
-    /// Version of the transaction scheme
-    // pub version: F,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 /// Version of the transaction scheme
@@ -403,8 +395,6 @@ pub struct DeclareTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: U64,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -446,8 +436,6 @@ pub struct DeployAccountTxnV1<F> {
     pub max_fee: F,
     pub nonce: F,
     pub signature: Signature<F>,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 /// Deploys an account contract, charges fee from the pre-funded account addresses
@@ -471,8 +459,6 @@ pub struct DeployAccountTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: F,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -715,8 +701,6 @@ pub struct InvokeTxnV1<F> {
     pub nonce: F,
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InvokeTxnV3<F> {
@@ -737,8 +721,6 @@ pub struct InvokeTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: F,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
