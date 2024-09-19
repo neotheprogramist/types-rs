@@ -3,6 +3,8 @@ use crate::felt::Felt;
 use crate::hash::{Pedersen, StarkHash};
 use core::fmt::{Display, Formatter, Result as CoreResult};
 use core::ops::{Add, Mul};
+use std::error::Error as StdError;
+use std::fmt;
 use crypto_bigint::{ArrayEncoding, ByteArray, Integer as CryptoInteger, U256};
 use hmac::digest::Digest;
 use lambdaworks_math::elliptic_curve::short_weierstrass::curves::stark_curve::StarkCurve;
@@ -154,6 +156,20 @@ pub enum VerifyError {
     /// The `s` value is not in the range of `[0, 2^251)`.
     InvalidS,
 }
+
+impl fmt::Display for VerifyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            VerifyError::InvalidPublicKey => write!(f, "The public key is not a valid point on the STARK curve."),
+            VerifyError::InvalidMessageHash => write!(f, "The message hash is not in the valid range [0, 2^251)."),
+            VerifyError::InvalidR => write!(f, "The 'r' value is not in the valid range [0, 2^251)."),
+            VerifyError::InvalidS => write!(f, "The 's' value is not in the valid range [0, 2^251)."),
+        }
+    }
+}
+
+impl StdError for VerifyError {}
+
 
 #[derive(Debug)]
 pub enum RecoverError {
