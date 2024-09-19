@@ -15,10 +15,10 @@ pub enum BroadcastedDeclareTxn {
     #[serde(rename = "0x2")]
     V2(BroadcastedDeclareTxnV2),
     /// Query-only broadcasted declare transaction.
-    #[serde(rename = "0x0000000000000000000000000000000100000000000000000000000000000001")]
+    #[serde(rename = "0x100000000000000000000000000000001")]
     QueryV1(BroadcastedDeclareTxnV1),
     /// Query-only broadcasted declare transaction.
-    #[serde(rename = "0x0000000000000000000000000000000100000000000000000000000000000002")]
+    #[serde(rename = "0x100000000000000000000000000000002")]
     QueryV2(BroadcastedDeclareTxnV2),
 }
 
@@ -28,7 +28,7 @@ pub enum BroadcastedDeployAccountTxn {
     #[serde(rename = "0x1")]
     V1(DeployAccountTxnV1),
     /// Query-only broadcasted deploy account transaction.
-    #[serde(rename = "0x0000000000000000000000000000000100000000000000000000000000000001")]
+    #[serde(rename = "0x100000000000000000000000000000001")]
     QueryV1(DeployAccountTxnV1),
 }
 
@@ -40,9 +40,9 @@ pub enum BroadcastedInvokeTxn {
     #[serde(rename = "0x1")]
     V1(InvokeTxnV1),
     /// Query-only broadcasted invoke transaction.
-    #[serde(rename = "0x0000000000000000000000000000000100000000000000000000000000000000")]
+    #[serde(rename = "0x100000000000000000000000000000000")]
     QueryV0(InvokeTxnV0),
     /// Query-only broadcasted invoke transaction.
-    #[serde(rename = "0x0000000000000000000000000000000100000000000000000000000000000001")]
+    #[serde(rename = "0x100000000000000000000000000000001")]
     QueryV1(InvokeTxnV1),
 }
