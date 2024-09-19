@@ -9,7 +9,8 @@
 //
 
 use super::{
-    BroadcastedDeclareTxn, BroadcastedDeployAccountTxn, BroadcastedInvokeTxn, Felt, TxnHash,
+    BroadcastedDeclareTxn, BroadcastedDeployAccountTxn, BroadcastedInvokeTxn, BroadcastedTxn, Felt,
+    TxnHash,
 };
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
@@ -35,7 +36,7 @@ pub struct AddInvokeTransactionResult {
 #[derive(Debug, Clone)]
 pub struct AddInvokeTransactionParams {
     /// The information needed to invoke the function (or account, for version 1 transactions)
-    pub invoke_transaction: BroadcastedInvokeTxn,
+    pub invoke_transaction: BroadcastedTxn,
 }
 
 impl Serialize for AddInvokeTransactionParams {
@@ -69,7 +70,7 @@ impl<'de> Deserialize<'de> for AddInvokeTransactionParams {
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let invoke_transaction: BroadcastedInvokeTxn = seq
+                let invoke_transaction: BroadcastedTxn = seq
                     .next_element()?
                     .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
@@ -90,7 +91,7 @@ impl<'de> Deserialize<'de> for AddInvokeTransactionParams {
             {
                 #[derive(Deserialize)]
                 struct Helper {
-                    invoke_transaction: BroadcastedInvokeTxn,
+                    invoke_transaction: BroadcastedTxn,
                 }
 
                 let helper =
@@ -110,7 +111,7 @@ impl<'de> Deserialize<'de> for AddInvokeTransactionParams {
 #[derive(Debug, Clone)]
 pub struct AddDeclareTransactionParams {
     /// Declare transaction required to declare a new class on Starknet
-    pub declare_transaction: BroadcastedDeclareTxn,
+    pub declare_transaction: BroadcastedTxn,
 }
 
 impl Serialize for AddDeclareTransactionParams {
@@ -144,7 +145,7 @@ impl<'de> Deserialize<'de> for AddDeclareTransactionParams {
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let declare_transaction: BroadcastedDeclareTxn = seq
+                let declare_transaction: BroadcastedTxn = seq
                     .next_element()?
                     .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
@@ -167,7 +168,7 @@ impl<'de> Deserialize<'de> for AddDeclareTransactionParams {
             {
                 #[derive(Deserialize)]
                 struct Helper {
-                    declare_transaction: BroadcastedDeclareTxn,
+                    declare_transaction: BroadcastedTxn,
                 }
 
                 let helper =
@@ -187,7 +188,7 @@ impl<'de> Deserialize<'de> for AddDeclareTransactionParams {
 #[derive(Debug, Clone)]
 pub struct AddDeployAccountTransactionParams {
     /// The deploy account transaction
-    pub deploy_account_transaction: BroadcastedDeployAccountTxn,
+    pub deploy_account_transaction: BroadcastedTxn,
 }
 
 impl Serialize for AddDeployAccountTransactionParams {
@@ -227,10 +228,9 @@ impl<'de> Deserialize<'de> for AddDeployAccountTransactionParams {
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let deploy_account_transaction: BroadcastedDeployAccountTxn =
-                    seq.next_element()?.ok_or_else(|| {
-                        serde::de::Error::invalid_length(1, &"expected 1 parameters")
-                    })?;
+                let deploy_account_transaction: BroadcastedTxn = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
                 if seq.next_element::<serde::de::IgnoredAny>()?.is_some() {
                     return Err(serde::de::Error::invalid_length(
@@ -251,7 +251,7 @@ impl<'de> Deserialize<'de> for AddDeployAccountTransactionParams {
             {
                 #[derive(Deserialize)]
                 struct Helper {
-                    deploy_account_transaction: BroadcastedDeployAccountTxn,
+                    deploy_account_transaction: BroadcastedTxn,
                 }
 
                 let helper =
