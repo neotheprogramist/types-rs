@@ -8,10 +8,7 @@
 //     https://github.com/nils-mathieu/openrpc-gen
 //
 
-use super::{
-    BroadcastedDeclareTxn, BroadcastedDeployAccountTxn, BroadcastedInvokeTxn, BroadcastedTxn, Felt,
-    TxnHash,
-};
+use super::{BroadcastedTxn, Felt, TxnHash};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
 
