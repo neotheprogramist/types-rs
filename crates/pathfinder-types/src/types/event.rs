@@ -1,14 +1,11 @@
-use std::str::FromStr;
-use starknet_devnet_types::{rpc::transaction_receipt::TransactionReceipt, traits::ToHexString};
 use starknet_devnet_types::emitted_event::Event as DevnetEvent;
+use starknet_devnet_types::{rpc::transaction_receipt::TransactionReceipt, traits::ToHexString};
+use std::str::FromStr;
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
-use starknet_types_core::felt::Felt;
 use serde_with::serde_conv;
-// use tagged::Tagged;
-// use tagged_debug_derive::TaggedDebug;
-
+use starknet_types_core::felt::Felt;
 
 #[derive(Serialize, Clone, Debug, Deserialize)]
 pub struct EmittedEvent {
@@ -37,7 +34,8 @@ serde_conv!(
     EventKeyAsDecimalStr,
     Felt,
     |serialize_me: &Felt| starkhash_to_dec_str(&serialize_me),
-    |s: &str| starkhash_from_dec_str(s));
+    |s: &str| starkhash_from_dec_str(s)
+);
 
 /// A helper conversion function. Only use with __sequencer API related types__.
 fn starkhash_to_dec_str(h: &Felt) -> String {
@@ -59,7 +57,6 @@ fn starkhash_from_dec_str(s: &str) -> Result<Felt, anyhow::Error> {
         }
     }
 }
-
 
 pub fn extract_emmited_events(transaction_receipts: Vec<TransactionReceipt>) -> Vec<EmittedEvent> {
     let mut events: Vec<EmittedEvent> = vec![];
@@ -98,7 +95,7 @@ pub fn extract_emmited_events(transaction_receipts: Vec<TransactionReceipt>) -> 
                 });
             }
         }
-    };
+    }
     events
 }
 

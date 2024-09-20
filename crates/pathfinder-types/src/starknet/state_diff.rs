@@ -1,9 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::types::reply;
-use crate::types::reply::state_update::{DeclaredSierraClass, StorageDiff};
-use blockifier::state::cached_state::CachedState;
-use blockifier::state::state_api::{State, StateReader};
+use crate::types::reply::state_update::StorageDiff;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
 use starknet_types_core::felt::Felt;
@@ -65,71 +63,8 @@ where
 
 impl Eq for StateDiff {}
 
-// impl From<StateDiff> for ThinStateDiff {
-//     fn from(value: StateDiff) -> Self {
-//         let declared_classes: Vec<(Felt, Felt)> = value
-//             .class_hash_to_compiled_class_hash
-//             .into_iter()
-//             .collect();
-
-//         // cairo 0 declarations
-//         let cairo_0_declared_classes: Vec<Felt> = value.cairo_0_declared_contracts;
-
-//         // storage updates (contract address -> [(storage_entry, value)])
-//         let storage_updates: Vec<(ContractAddress, Vec<(PatriciaKey, Felt)>)> = value
-//             .storage_updates
-//             .into_iter()
-//             .map(|(address, entries)| (address, entries.into_iter().collect()))
-//             .collect();
-
-//         // contract nonces
-//         let nonces: Vec<(ContractAddress, Felt)> = value.address_to_nonce.into_iter().collect();
-
-//         // deployed contracts (address -> class hash)
-//         let deployed_contracts: Vec<(ContractAddress, Felt)> =
-//             value.address_to_class_hash.into_iter().collect();
-
-//         ThinStateDiff {
-//             deployed_contracts: deployed_contracts
-//                 .into_iter()
-//                 .map(|(address, class_hash)| DeployedContract {
-//                     address,
-//                     class_hash,
-//                 })
-//                 .collect(),
-//             declared_classes: declared_classes
-//                 .into_iter()
-//                 .map(|(class_hash, compiled_class_hash)| ClassHashes {
-//                     class_hash,
-//                     compiled_class_hash,
-//                 })
-//                 .collect(),
-//             deprecated_declared_classes: cairo_0_declared_classes,
-//             nonces: nonces
-//                 .into_iter()
-//                 .map(|(address, nonce)| ContractNonce {
-//                     contract_address: address,
-//                     nonce,
-//                 })
-//                 .collect(),
-//             storage_diffs: storage_updates
-//                 .into_iter()
-//                 .map(|(contract_address, updates)| StorageDiff {
-//                     address: contract_address,
-//                     storage_entries: updates
-//                         .into_iter()
-//                         .map(|(key, value)| StorageEntry { key, value })
-//                         .collect(),
-//                 })
-//                 .collect(),
-//             replaced_classes: vec![],
-//         }
-//     }
-// }
-
 impl From<StateDiff> for reply::state_update::StateDiff {
     fn from(value: StateDiff) -> Self {
-        // Convert declared_classes from class_hash_to_compiled_class_hash
         let declared_classes = value
             .class_hash_to_compiled_class_hash
             .into_iter()
@@ -141,7 +76,6 @@ impl From<StateDiff> for reply::state_update::StateDiff {
             )
             .collect();
 
-        // Convert deployed_contracts from address_to_class_hash
         let deployed_contracts = value
             .address_to_class_hash
             .into_iter()
@@ -155,7 +89,6 @@ impl From<StateDiff> for reply::state_update::StateDiff {
 
         let old_declared_contracts: HashSet<Felt> = value.cairo_0_declared_contracts.into_iter().collect();
 
-         // storage updates (contract address -> [(storage_entry, value)])
         let storage_updates: HashMap<Felt, Vec<(Felt, Felt)>> = value
             .storage_updates
             .into_iter()
@@ -163,18 +96,17 @@ impl From<StateDiff> for reply::state_update::StateDiff {
             .collect();
 
 
-        // Convert storage_updates from HashMap<ContractAddress, HashMap<StorageKey, Felt>> to the target type
         let storage_diffs = storage_updates
         .into_iter()
         .map(|(contract_address, updates)| {
             let storage_entries = updates
                 .into_iter()
-                .map(|(key, value)| StorageDiff { key, value }) // Convert (Felt, Felt) into StorageDiff
-                .collect::<Vec<StorageDiff>>(); // Collect the entries into Vec<StorageDiff>
+                .map(|(key, value)| StorageDiff { key, value }) 
+                .collect::<Vec<StorageDiff>>(); 
     
             (contract_address, storage_entries)
         })
-        .collect::<HashMap<Felt, Vec<StorageDiff>>>(); // Collect into the HashMap
+        .collect::<HashMap<Felt, Vec<StorageDiff>>>(); 
 
         let nonces: HashMap<
             reply::state_update::ContractAddress,
@@ -183,7 +115,6 @@ impl From<StateDiff> for reply::state_update::StateDiff {
             .address_to_nonce.into_iter().collect();
 
 
-        // Convert replaced_classes from empty (as we don't have replaced_classes in this case)
         let replaced_classes = Vec::new();
 
         reply::state_update::StateDiff {

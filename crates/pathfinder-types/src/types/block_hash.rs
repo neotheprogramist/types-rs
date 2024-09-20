@@ -1,5 +1,4 @@
 use std::io::{self, Write};
-// use std::sync::LazyLock;
 
 use super::block::BlockHeaderData;
 use super::header::{BlockHeader, L1DataAvailabilityMode};
@@ -15,7 +14,6 @@ use starknet_types_rpc::v0_7_1::starknet_api_openrpc::{
 use super::transaction::TransactionOrEventTree;
 use sha3::Digest;
 use starknet_types_core::felt::Felt;
-// use starknet_gateway_types::reply::Block;
 
 impl BlockHeaderData {
     pub fn from_header(header: &BlockHeader) -> Self {
