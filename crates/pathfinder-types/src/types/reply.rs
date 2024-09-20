@@ -3,89 +3,14 @@
 use super:: header::{self};
 use super::state_update as state_update_main;
 use starknet_types_core::felt::Felt;
-// use pathfinder_serde::{EthereumAddressAsHexStr, GasPriceAsHexStr};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-// pub use transaction::DataAvailabilityMode;
 
 type BlockHash = Felt;
 type ContractAddress = Felt;
 type GasPrice = u128;
 type StateCommitment = Felt;
 
-
-// // / Used to deserialize replies to Starknet block requests.
-// #[serde_as]
-// #[derive(Clone, Debug, Deserialize, PartialEq, Eq, serde::Serialize)]
-// #[serde(deny_unknown_fields)]
-// pub struct Block {
-//     pub block_hash: BlockHash,
-//     pub block_number: BlockNumber,
-
-//     pub l1_gas_price: GasPrices,
-//     pub l1_data_gas_price: GasPrices,
-
-//     pub parent_block_hash: BlockHash,
-//     /// Excluded in blocks prior to Starknet 0.8
-//     #[serde(default)]
-//     pub sequencer_address: Option<SequencerAddress>,
-//     // Historical blocks (pre v0.11) still use `state_root`.
-//     #[serde(alias = "state_root")]
-//     pub state_commitment: StateCommitment,
-//     pub status: Status,
-//     pub timestamp: BlockTimestamp,
-//     #[serde_as(as = "Vec<transaction::Receipt>")]
-//     pub transaction_receipts: Vec<(
-//         Receipt,
-//         Vec<Event>,
-//     )>,
-//     #[serde_as(as = "Vec<transaction::Transaction>")]
-//     pub transactions: Vec<Transaction>,
-//     /// Version metadata introduced in 0.9.1, older blocks will not have it.
-//     #[serde(default)]
-//     #[serde_as(as = "DisplayFromStr")]
-//     pub starknet_version: StarknetVersion,
-
-//     // Introduced in v0.13.1
-//     pub transaction_commitment: TransactionCommitment,
-//     pub event_commitment: EventCommitment,
-//     pub l1_da_mode: L1DataAvailabilityMode,
-
-//     // Introduced in v0.13.2, older blocks don't have these fields.
-//     #[serde(default)]
-//     pub receipt_commitment: Option<ReceiptCommitment>,
-//     #[serde(default)]
-//     pub state_diff_commitment: Option<StateDiffCommitment>,
-//     #[serde(default)]
-//     pub state_diff_length: Option<u64>,
-// }
-
-// #[serde_as]
-// #[derive(Clone, Default, Debug, Deserialize, PartialEq, Eq)]
-// #[cfg_attr(test, derive(serde::Serialize))]
-// pub struct PendingBlock {
-//     pub l1_gas_price: GasPrices,
-//     pub l1_data_gas_price: GasPrices,
-
-//     #[serde(rename = "parent_block_hash")]
-//     pub parent_hash: BlockHash,
-//     pub sequencer_address: SequencerAddress,
-//     pub status: Status,
-//     pub timestamp: BlockTimestamp,
-//     #[serde_as(as = "Vec<transaction::Receipt>")]
-//     pub transaction_receipts: Vec<(
-//         Receipt,
-//         Vec<Event>,
-//     )>,
-//     #[serde_as(as = "Vec<transaction::Transaction>")]
-//     pub transactions: Vec<Transaction>,
-//     /// Version metadata introduced in 0.9.1, older blocks will not have it.
-//     #[serde(default)]
-//     #[serde_as(as = "DisplayFromStr")]
-//     pub starknet_version: StarknetVersion,
-//     // Introduced in v0.13.1
-//     pub l1_da_mode: L1DataAvailabilityMode,
-// }
 
 #[derive(Copy, Clone, Debug, Default, Deserialize, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -94,18 +19,6 @@ pub enum L1DataAvailabilityMode {
     Calldata,
     Blob,
 }
-
-/// Used to deserialize replies to Starknet block requests.
-// #[serde_as]
-// #[derive(Clone, Debug, Deserialize, PartialEq, Eq, serde::Serialize)]
-// #[serde(deny_unknown_fields)]
-// pub struct ReceiptsWithEvents {
-//     #[serde_as(as = "Vec<transaction::Receipt>")]
-//     pub transaction_receipts: Vec<(
-//         Receipt,
-//         Vec<Event>,
-//     )>,
-// }
 
 
 impl From<L1DataAvailabilityMode> for header::L1DataAvailabilityMode {
