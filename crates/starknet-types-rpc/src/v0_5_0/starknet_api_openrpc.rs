@@ -11,6 +11,7 @@
 use super::{
     BlockId, BroadcastedDeclareTxn, BroadcastedDeployAccountTxn, BroadcastedInvokeTxn, Felt,
 };
+
 use crate::custom_serde::NumAsHex;
 use alloc::string::String;
 use alloc::vec::Vec;
