@@ -101,7 +101,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
         .map(|receipt| match receipt {
             TransactionReceipt::Common(tx_receipt) => ThinReceipt {
                 transaction_hash: Felt::from_hex_unchecked(
-                    &tx_receipt.transaction_hash.to_prefixed_hex_str().as_str(),
+                    tx_receipt.transaction_hash.to_prefixed_hex_str().as_str(),
                 ),
                 actual_fee: match tx_receipt.actual_fee {
                     FeeInUnits::WEI(fee_amount) => {
@@ -116,7 +116,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                     .into_iter()
                     .map(|msg| L2ToL1Message {
                         from_address: Felt::from_hex_unchecked(
-                            &msg.from_address.to_prefixed_hex_str().as_str(),
+                            msg.from_address.to_prefixed_hex_str().as_str(),
                         ),
                         to_address: Felt::from_hex_unchecked(
                             DevnetFelt::from(msg.to_address)
@@ -128,7 +128,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                             .into_iter()
                             .map(|payload_felt| {
                                 Felt::from_hex_unchecked(
-                                    &payload_felt.to_prefixed_hex_str().as_str(),
+                                    payload_felt.to_prefixed_hex_str().as_str(),
                                 )
                             })
                             .collect(),
@@ -143,7 +143,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
             },
             TransactionReceipt::Deploy(tx_receipt) => ThinReceipt {
                 transaction_hash: Felt::from_hex_unchecked(
-                    &tx_receipt
+                    tx_receipt
                         .common
                         .transaction_hash
                         .to_prefixed_hex_str()
@@ -163,7 +163,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                     .into_iter()
                     .map(|msg| L2ToL1Message {
                         from_address: Felt::from_hex_unchecked(
-                            &msg.from_address.to_prefixed_hex_str().as_str(),
+                            msg.from_address.to_prefixed_hex_str().as_str(),
                         ),
                         to_address: Felt::from_hex_unchecked(
                             DevnetFelt::from(msg.to_address)
@@ -175,7 +175,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                             .into_iter()
                             .map(|payload_felt| {
                                 Felt::from_hex_unchecked(
-                                    &payload_felt.to_prefixed_hex_str().as_str(),
+                                    payload_felt.to_prefixed_hex_str().as_str(),
                                 )
                             })
                             .collect(),
@@ -199,7 +199,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
             },
             TransactionReceipt::L1Handler(tx_receipt) => ThinReceipt {
                 transaction_hash: Felt::from_hex_unchecked(
-                    &tx_receipt
+                    tx_receipt
                         .common
                         .transaction_hash
                         .to_prefixed_hex_str()
@@ -219,7 +219,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                     .into_iter()
                     .map(|msg| L2ToL1Message {
                         from_address: Felt::from_hex_unchecked(
-                            &msg.from_address.to_prefixed_hex_str().as_str(),
+                            msg.from_address.to_prefixed_hex_str().as_str(),
                         ),
                         to_address: Felt::from_hex_unchecked(
                             DevnetFelt::from(msg.to_address)
@@ -231,7 +231,7 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                             .into_iter()
                             .map(|payload_felt| {
                                 Felt::from_hex_unchecked(
-                                    &payload_felt.to_prefixed_hex_str().as_str(),
+                                    payload_felt.to_prefixed_hex_str().as_str(),
                                 )
                             })
                             .collect(),

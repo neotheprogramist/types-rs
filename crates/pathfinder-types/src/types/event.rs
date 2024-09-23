@@ -65,7 +65,7 @@ pub fn extract_emmited_events(transaction_receipts: Vec<TransactionReceipt>) -> 
             TransactionReceipt::Common(tx_receipt) => {
                 events.push(EmittedEvent {
                     transaction_hash: Felt::from_hex_unchecked(
-                        &tx_receipt.transaction_hash.to_prefixed_hex_str().as_str(),
+                        tx_receipt.transaction_hash.to_prefixed_hex_str().as_str(),
                     ),
                     events: convert_events(tx_receipt.events.clone()),
                 });
@@ -73,7 +73,7 @@ pub fn extract_emmited_events(transaction_receipts: Vec<TransactionReceipt>) -> 
             TransactionReceipt::Deploy(tx_receipt) => {
                 events.push(EmittedEvent {
                     transaction_hash: Felt::from_hex_unchecked(
-                        &tx_receipt
+                        tx_receipt
                             .common
                             .transaction_hash
                             .to_prefixed_hex_str()
@@ -85,7 +85,7 @@ pub fn extract_emmited_events(transaction_receipts: Vec<TransactionReceipt>) -> 
             TransactionReceipt::L1Handler(tx_receipt) => {
                 events.push(EmittedEvent {
                     transaction_hash: Felt::from_hex_unchecked(
-                        &tx_receipt
+                        tx_receipt
                             .common
                             .transaction_hash
                             .to_prefixed_hex_str()
@@ -106,16 +106,16 @@ fn convert_events(old_events: Vec<DevnetEvent>) -> Vec<Event> {
             let new_data: Vec<Felt> = event
                 .data
                 .into_iter()
-                .map(|felt| Felt::from_hex_unchecked(&felt.to_prefixed_hex_str().as_str()))
+                .map(|felt| Felt::from_hex_unchecked(felt.to_prefixed_hex_str().as_str()))
                 .collect();
 
             let new_from_address =
-                Felt::from_hex_unchecked(&event.from_address.to_prefixed_hex_str().as_str());
+                Felt::from_hex_unchecked(event.from_address.to_prefixed_hex_str().as_str());
 
             let new_keys: Vec<Felt> = event
                 .keys
                 .into_iter()
-                .map(|felt| Felt::from_hex_unchecked(&felt.to_prefixed_hex_str().as_str()))
+                .map(|felt| Felt::from_hex_unchecked(felt.to_prefixed_hex_str().as_str()))
                 .collect();
 
             Event {

@@ -60,24 +60,26 @@ pub fn compute_final_hash(header: &BlockHeaderData) -> Result<Felt, io::Error> {
     let concat_counts = Felt::from_bytes_be(&concat_counts);
     // Hash the block header.
     let mut hasher = PoseidonHasher::new();
-    hasher.update(Felt::from_bytes_be_slice(b"STARKNET_BLOCK_HASH0").into());
+    hasher.update(Felt::from_bytes_be_slice(b"STARKNET_BLOCK_HASH0"));
     hasher.update(header.number.into());
-    hasher.update(header.state_commitment.into());
-    hasher.update(header.sequencer_address.into());
+    hasher.update(header.state_commitment);
+    hasher.update(header.sequencer_address);
     hasher.update(header.timestamp.into());
     hasher.update(concat_counts);
-    hasher.update(header.state_diff_commitment.into());
-    hasher.update(header.transaction_commitment.into());
-    hasher.update(header.event_commitment.into());
-    hasher.update(header.receipt_commitment.into());
+    hasher.update(header.state_diff_commitment);
+    hasher.update(header.transaction_commitment);
+    hasher.update(header.event_commitment);
+    hasher.update(header.receipt_commitment);
     hasher.update(header.eth_l1_gas_price.into());
     hasher.update(header.strk_l1_gas_price.into());
     hasher.update(header.eth_l1_data_gas_price.into());
     hasher.update(header.strk_l1_data_gas_price.into());
-    hasher.update(Felt::from_bytes_be_slice(header.starknet_version.as_bytes()).into());
+    hasher.update(Felt::from_bytes_be_slice(
+        header.starknet_version.as_bytes(),
+    ));
     hasher.update(Felt::ZERO);
-    hasher.update(header.parent_hash.into());
-    Ok(hasher.finalize().into())
+    hasher.update(header.parent_hash);
+    Ok(hasher.finalize())
 }
 
 /// Calculate transaction commitment hash value.
@@ -91,7 +93,7 @@ pub fn calculate_transaction_commitment(transactions: &[TxnWithHash<Felt>]) -> R
 
     let final_hashes = transactions
         .par_iter()
-        .map(|tx| calculate_transaction_hash_with_signature(tx))
+        .map(calculate_transaction_hash_with_signature)
         .collect();
 
     calculate_commitment_root::<PoseidonHash>(final_hashes)
@@ -104,15 +106,15 @@ pub fn calculate_receipt_commitment(receipts: &[ThinReceipt]) -> Result<Felt> {
         .par_iter()
         .map(|receipt| {
             poseidon_hash_many(&[
-                receipt.transaction_hash.into(),
+                receipt.transaction_hash,
                 receipt.actual_fee.into(),
                 // Calculate hash of messages sent.
                 {
                     let mut hasher = PoseidonHasher::new();
                     hasher.update((receipt.l2_to_l1_messages.len() as u64).into());
                     for msg in &receipt.l2_to_l1_messages {
-                        hasher.update(msg.from_address.into());
-                        hasher.update(msg.to_address.into());
+                        hasher.update(msg.from_address);
+                        hasher.update(msg.to_address);
                         hasher.update((msg.payload.len() as u64).into());
                         for payload in &msg.payload {
                             hasher.update(*payload);
@@ -139,7 +141,6 @@ pub fn calculate_receipt_commitment(receipts: &[ThinReceipt]) -> Result<Felt> {
                 // L1 data gas consumed
                 receipt.l1_data_gas.into(),
             ])
-            .into()
         })
         .collect();
 
@@ -188,11 +189,11 @@ fn calculate_transaction_hash_with_signature(tx: &TxnWithHash<Felt>) -> Felt {
     };
 
     let mut hasher = PoseidonHasher::new();
-    hasher.update(tx.transaction_hash.into());
+    hasher.update(tx.transaction_hash);
     for elem in signature {
         hasher.update(*elem);
     }
-    hasher.finalize().into()
+    hasher.finalize()
 }
 
 /// Calculate event commitment hash value.
@@ -216,8 +217,8 @@ pub fn calculate_event_commitment(transaction_events: &Vec<(Felt, Vec<Event>)>) 
 /// [Reference code from StarkWare](https://github.com/starkware-libs/starknet-api/blob/5565e5282f5fead364a41e49c173940fd83dee00/src/block_hash/event_commitment.rs#L33).
 fn calculate_event_hash(event: &Event, transaction_hash: Felt) -> Felt {
     let mut hasher = PoseidonHasher::new();
-    hasher.update(event.from_address.into());
-    hasher.update(transaction_hash.into());
+    hasher.update(event.from_address);
+    hasher.update(transaction_hash);
     hasher.update((event.keys.len() as u64).into());
     for key in &event.keys {
         hasher.update(*key);
@@ -226,5 +227,5 @@ fn calculate_event_hash(event: &Event, transaction_hash: Felt) -> Felt {
     for data in &event.data {
         hasher.update(*data);
     }
-    hasher.finalize().into()
+    hasher.finalize()
 }

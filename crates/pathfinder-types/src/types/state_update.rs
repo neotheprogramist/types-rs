@@ -302,7 +302,7 @@ pub mod state_diff_commitment {
         // version: StarknetVersion,
     ) -> Felt {
         let mut hasher = PoseidonHasher::new();
-        hasher.update(Felt::from_bytes_be_slice(b"STARKNET_STATE_DIFF0").into());
+        hasher.update(Felt::from_bytes_be_slice(b"STARKNET_STATE_DIFF0"));
         // Hash the deployed contracts.
         let deployed_contracts: BTreeMap<_, _> = contract_updates
             .iter()
