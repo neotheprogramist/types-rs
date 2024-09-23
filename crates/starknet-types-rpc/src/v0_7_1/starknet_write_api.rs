@@ -8,7 +8,7 @@
 //     https://github.com/nils-mathieu/openrpc-gen
 //
 
-use super::{BroadcastedDeclareTxn, BroadcastedDeployAccountTxn, BroadcastedInvokeTxn, TxnHash};
+use super::{BroadcastedTxn, TxnHash};
 use core::marker::PhantomData;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,7 @@ pub struct AddInvokeTransactionResult<F> {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AddInvokeTransactionParams<F: Default> {
     /// The information needed to invoke the function (or account, for version 1 transactions)
-    pub invoke_transaction: BroadcastedInvokeTxn<F>,
+    pub invoke_transaction: BroadcastedTxn<F>,
 }
 
 impl<F: Default + Serialize> Serialize for AddInvokeTransactionParams<F> {
@@ -70,7 +70,7 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddInvokeTransacti
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let invoke_transaction: BroadcastedInvokeTxn<F> = seq
+                let invoke_transaction: BroadcastedTxn<F> = seq
                     .next_element()?
                     .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
@@ -91,7 +91,7 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddInvokeTransacti
             {
                 #[derive(Deserialize)]
                 struct Helper<F: Default> {
-                    invoke_transaction: BroadcastedInvokeTxn<F>,
+                    invoke_transaction: BroadcastedTxn<F>,
                 }
 
                 let helper =
@@ -113,7 +113,7 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddInvokeTransacti
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AddDeclareTransactionParams<F: Default> {
     /// Declare transaction required to declare a new class on Starknet
-    pub declare_transaction: BroadcastedDeclareTxn<F>,
+    pub declare_transaction: BroadcastedTxn<F>,
 }
 
 impl<F: Default + Serialize> Serialize for AddDeclareTransactionParams<F> {
@@ -149,7 +149,7 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddDeclareTransact
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let declare_transaction: BroadcastedDeclareTxn<F> = seq
+                let declare_transaction: BroadcastedTxn<F> = seq
                     .next_element()?
                     .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
@@ -172,7 +172,7 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddDeclareTransact
             {
                 #[derive(Deserialize)]
                 struct Helper<F: Default> {
-                    declare_transaction: BroadcastedDeclareTxn<F>,
+                    declare_transaction: BroadcastedTxn<F>,
                 }
 
                 let helper =
@@ -192,12 +192,12 @@ impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddDeclareTransact
 
 /// Parameters of the `starknet_addDeployAccountTransaction` method.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct AddDeployAccountTransactionParams<F> {
+pub struct AddDeployAccountTransactionParams<F: Default> {
     /// The deploy account transaction
-    pub deploy_account_transaction: BroadcastedDeployAccountTxn<F>,
+    pub deploy_account_transaction: BroadcastedTxn<F>,
 }
 
-impl<F: Serialize> Serialize for AddDeployAccountTransactionParams<F> {
+impl<F: Default + Serialize> Serialize for AddDeployAccountTransactionParams<F> {
     #[allow(unused_mut)]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -212,7 +212,7 @@ impl<F: Serialize> Serialize for AddDeployAccountTransactionParams<F> {
     }
 }
 
-impl<'de, F: Deserialize<'de>> Deserialize<'de> for AddDeployAccountTransactionParams<F> {
+impl<'de, F: Default + Deserialize<'de>> Deserialize<'de> for AddDeployAccountTransactionParams<F> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -221,7 +221,7 @@ impl<'de, F: Deserialize<'de>> Deserialize<'de> for AddDeployAccountTransactionP
             marker: PhantomData<F>,
         }
 
-        impl<'de, F: Deserialize<'de>> serde::de::Visitor<'de> for Visitor<F> {
+        impl<'de, F: Default + Deserialize<'de>> serde::de::Visitor<'de> for Visitor<F> {
             type Value = AddDeployAccountTransactionParams<F>;
 
             fn expecting(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -236,7 +236,7 @@ impl<'de, F: Deserialize<'de>> Deserialize<'de> for AddDeployAccountTransactionP
             where
                 A: serde::de::SeqAccess<'de>,
             {
-                let deploy_account_transaction: BroadcastedDeployAccountTxn<F> = seq
+                let deploy_account_transaction: BroadcastedTxn<F> = seq
                     .next_element()?
                     .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 1 parameters"))?;
 
@@ -258,8 +258,8 @@ impl<'de, F: Deserialize<'de>> Deserialize<'de> for AddDeployAccountTransactionP
                 A: serde::de::MapAccess<'de>,
             {
                 #[derive(Deserialize)]
-                struct Helper<F> {
-                    deploy_account_transaction: BroadcastedDeployAccountTxn<F>,
+                struct Helper<F: Default> {
+                    deploy_account_transaction: BroadcastedTxn<F>,
                 }
 
                 let helper =

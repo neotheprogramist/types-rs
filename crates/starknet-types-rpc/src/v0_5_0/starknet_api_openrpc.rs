@@ -35,6 +35,8 @@ pub struct BlockHeader {
     /// The block number (its height)
     pub block_number: BlockNumber,
     pub l1_gas_price: ResourcePrice,
+    pub l1_data_gas_price: ResourcePrice,
+    pub l1_da_mode: L1DataAvailabilityMode,
     /// The new global state root
     pub new_root: Felt,
     /// The hash of this block's parent
@@ -45,6 +47,14 @@ pub struct BlockHeader {
     pub starknet_version: String,
     /// The time in which the block was created, encoded in Unix time
     pub timestamp: u64,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum L1DataAvailabilityMode {
+    #[serde(rename = "BLOB")]
+    Blob,
+    #[serde(rename = "CALLDATA")]
+    Calldata,
 }
 
 /// The block's number (its height)
@@ -432,25 +442,24 @@ pub type EventAbiType = String;
 /// The resources consumed by the transaction
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecutionResources {
-    /// the number of BITWISE builtin instances
-    pub bitwise_builtin_applications: u64,
     /// the number of EC_OP builtin instances
     pub ec_op_builtin_applications: u64,
-    /// the number of ECDSA builtin instances
-    pub ecdsa_builtin_applications: u64,
-    /// The number of KECCAK builtin instances
-    pub keccak_builtin_applications: u64,
     /// The number of unused memory cells (each cell is roughly equivalent to a step)
     #[serde(default)]
     pub memory_holes: Option<u64>,
     /// The number of Pedersen builtin instances
     pub pedersen_builtin_applications: u64,
-    /// The number of Poseidon builtin instances
-    pub poseidon_builtin_applications: u64,
     /// The number of RANGE_CHECK builtin instances
     pub range_check_builtin_applications: u64,
     /// The number of Cairo steps used
     pub steps: u64,
+    pub data_availability: DataAvailability,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataAvailability {
+    pub l1_gas: u64,
+    pub l1_data_gas: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -726,9 +735,9 @@ pub struct ResourceLimits {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourcePrice {
-    /// the price of one unit of the given resource, denominated in strk
+    /// the price of one unit of the given resource, denominated in fri
     #[serde(with = "NumAsHex")]
-    pub price_in_strk: u64,
+    pub price_in_fri: u64,
     /// the price of one unit of the given resource, denominated in wei
     #[serde(with = "NumAsHex")]
     pub price_in_wei: u64,
@@ -741,6 +750,9 @@ pub struct SierraEntryPoint {
     /// A unique identifier of the entry point (function) in the program
     pub selector: Felt,
 }
+
+/// Flags that indicate how to simulate a given transaction. By default, the sequencer behavior is replicated locally
+pub type SimulationFlagForEstimateFee = String;
 
 /// A transaction signature
 pub type Signature = Vec<Felt>;
@@ -800,7 +812,7 @@ pub struct StateUpdate {
 }
 
 /// A storage key. Represented as up to 62 hex digits, 3 bits, and 5 leading zeroes.
-pub type StorageKey = String;
+pub type StorageKey = Felt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StructAbiEntry {
@@ -2037,6 +2049,7 @@ impl<'de> Deserialize<'de> for CallParams {
 pub struct EstimateFeeParams {
     /// The transaction to estimate
     pub request: Vec<BroadcastedTxn>,
+    pub simulation_flags: Vec<SimulationFlagForEstimateFee>,
     /// The hash of the requested block, or number (height) of the requested block, or a block tag, for the block referencing the state or call the transaction on.
     pub block_id: BlockId,
 }
@@ -2049,6 +2062,7 @@ impl Serialize for EstimateFeeParams {
     {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("request", &self.request)?;
+        map.serialize_entry("simulation_flags", &self.simulation_flags)?;
         map.serialize_entry("block_id", &self.block_id)?;
         map.end()
     }
@@ -2075,19 +2089,26 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
             {
                 let request: Vec<BroadcastedTxn> = seq
                     .next_element()?
-                    .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 2 parameters"))?;
+                    .ok_or_else(|| serde::de::Error::invalid_length(1, &"expected 3 parameters"))?;
+                let simulation_flags: Vec<SimulationFlagForEstimateFee> = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(2, &"expected 3 parameters"))?;
                 let block_id: BlockId = seq
                     .next_element()?
-                    .ok_or_else(|| serde::de::Error::invalid_length(2, &"expected 2 parameters"))?;
+                    .ok_or_else(|| serde::de::Error::invalid_length(3, &"expected 3 parameters"))?;
 
                 if seq.next_element::<serde::de::IgnoredAny>()?.is_some() {
                     return Err(serde::de::Error::invalid_length(
-                        3,
-                        &"expected 2 parameters",
+                        4,
+                        &"expected 3 parameters",
                     ));
                 }
 
-                Ok(EstimateFeeParams { request, block_id })
+                Ok(EstimateFeeParams {
+                    request,
+                    simulation_flags,
+                    block_id,
+                })
             }
 
             #[allow(unused_variables)]
@@ -2098,6 +2119,7 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
                 #[derive(Deserialize)]
                 struct Helper {
                     request: Vec<BroadcastedTxn>,
+                    simulation_flags: Vec<SimulationFlagForEstimateFee>,
                     block_id: BlockId,
                 }
 
@@ -2106,6 +2128,7 @@ impl<'de> Deserialize<'de> for EstimateFeeParams {
 
                 Ok(EstimateFeeParams {
                     request: helper.request,
+                    simulation_flags: helper.simulation_flags,
                     block_id: helper.block_id,
                 })
             }
