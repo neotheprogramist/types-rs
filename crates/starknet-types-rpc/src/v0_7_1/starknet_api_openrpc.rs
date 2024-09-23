@@ -158,9 +158,7 @@ pub struct BroadcastedDeclareTxnV3<F: Default> {
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
-    /// Version of the transaction scheme
-    pub version: Version,
+    pub tip: F,
 }
 
 /// Version of the transaction scheme
@@ -313,7 +311,7 @@ pub struct KeyValuePair<F> {
 }
 
 /// Specifies a storage domain in Starknet. Each domain has different gurantess regarding availability
-#[derive(Eq, Hash, PartialEq, Serialize, Deserialize, Clone, Debug)]
+#[derive(Eq, Hash, PartialEq, Deserialize, Serialize, Clone, Debug)]
 pub enum DaMode {
     L1,
     L2,
@@ -593,7 +591,7 @@ pub struct ExecutionResources {
     #[serde(default)]
     pub segment_arena_builtin: Option<u64>,
     /// The number of Cairo steps used
-    pub n_steps: u64,
+    pub steps: u64,
     pub data_availability: DataAvailability,
 }
 
@@ -704,7 +702,6 @@ pub struct InvokeTxnV1<F> {
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
 }
-
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InvokeTxnV3<F> {
     /// data needed to deploy the account contract from which this tx will be initiated
@@ -847,14 +844,6 @@ pub struct ResourceBounds {
     pub max_price_per_unit: U128,
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub struct ResourceBoundsMapping {
-    /// The max amount and max price per unit of L1 gas used in this tx
-    pub l1_gas: ResourceBounds,
-    /// The max amount and max price per unit of L2 gas used in this tx
-    pub l2_gas: ResourceBounds,
-}
-
 /// Execution resource.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Resource {
@@ -862,6 +851,14 @@ pub enum Resource {
     L1Gas,
     #[serde(rename = "L2_GAS")]
     L2Gas,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct ResourceBoundsMapping {
+    /// The max amount and max price per unit of L1 gas used in this tx
+    pub l1_gas: ResourceBounds,
+    /// The max amount and max price per unit of L2 gas used in this tx
+    pub l2_gas: ResourceBounds,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

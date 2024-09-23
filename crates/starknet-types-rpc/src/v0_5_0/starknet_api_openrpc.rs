@@ -126,8 +126,6 @@ pub struct BroadcastedDeclareTxnV2 {
     /// The address of the account contract sending the declaration transaction
     pub sender_address: Address,
     pub signature: Signature,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -324,8 +322,6 @@ pub struct DeployAccountTxnV1 {
     pub max_fee: Felt,
     pub nonce: Felt,
     pub signature: Signature,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 /// Deploys an account contract, charges fee from the pre-funded account addresses
@@ -568,8 +564,6 @@ pub struct InvokeTxnV1 {
     pub nonce: Felt,
     pub sender_address: Address,
     pub signature: Signature,
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
