@@ -25,4 +25,3 @@ sha3 = "0.10"
 starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-devnet-rs.git", branch = "feat/1-modified-blockifier" }
 starknet-types-core = { path = "../starknet-types-core" }
 starknet-types-rpc = { path = "../starknet-types-rpc" }
-crypto-utils = { path = "/home/filipg/dev/checker/starknet-rpc-tests/crypto-utils" }

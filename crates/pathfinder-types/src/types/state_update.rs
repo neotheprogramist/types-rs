@@ -276,8 +276,7 @@ impl StateUpdate {
 pub mod state_diff_commitment {
     use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-    use crypto_utils::hash::poseidon_hash::PoseidonHasher;
-    use starknet_types_core::felt::Felt;
+    use starknet_types_core::{felt::Felt, hash::PoseidonHasher};
 
     use super::{ContractUpdate, SystemContractUpdate};
 

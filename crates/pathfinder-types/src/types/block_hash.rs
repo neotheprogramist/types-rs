@@ -6,7 +6,8 @@ use super::receipt::ThinReceipt;
 use crate::types::event::Event;
 use crate::types::hash::{FeltHash, PoseidonHash};
 use anyhow::{Context, Result};
-use crypto_utils::hash::poseidon_hash::{poseidon_hash_many, PoseidonHasher};
+// use starknet_types_core::hash::{poseidon_hash_many, PoseidonHasher};
+use starknet_types_core::hash::{poseidon_hash_many, PoseidonHasher};
 use starknet_types_rpc::v0_7_1::starknet_api_openrpc::{
     DeclareTxn, DeployAccountTxn, InvokeTxn, Txn, TxnWithHash,
 };
