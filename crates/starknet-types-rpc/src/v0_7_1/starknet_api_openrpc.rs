@@ -395,6 +395,7 @@ pub struct DeclareTxnV3<F> {
     pub signature: Signature<F>,
     /// the tip for the transaction
     pub tip: U64,
+
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -591,7 +592,7 @@ pub struct ExecutionResources {
     #[serde(default)]
     pub segment_arena_builtin: Option<u64>,
     /// The number of Cairo steps used
-    pub steps: u64,
+    pub n_steps: u64,
     pub data_availability: DataAvailability,
 }
 
