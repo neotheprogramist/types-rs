@@ -4,7 +4,7 @@ pub use crate::custom::{
     SyncingStatus,
 };
 
-mod starknet_api_openrpc;
+pub mod starknet_api_openrpc;
 mod starknet_trace_api_openrpc;
 mod starknet_write_api;
 
