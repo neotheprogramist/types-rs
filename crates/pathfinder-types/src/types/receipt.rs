@@ -1,9 +1,11 @@
 use fake::Dummy;
 use serde::Deserialize;
-use starknet_types_core::felt::Felt;
-use starknet_devnet_types::{rpc::transaction_receipt::{FeeInUnits, TransactionReceipt}, traits::ToHexString};
 use starknet_devnet_types::felt::Felt as DevnetFelt;
-
+use starknet_devnet_types::{
+    rpc::transaction_receipt::{FeeInUnits, TransactionReceipt},
+    traits::ToHexString,
+};
+use starknet_types_core::felt::Felt;
 
 #[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 
@@ -16,7 +18,6 @@ pub struct ThinReceipt {
     pub l1_gas: u128,
     pub l1_data_gas: u128,
 }
-
 
 #[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
 pub struct Receipt {
@@ -67,7 +68,7 @@ pub struct L1Gas {
     pub l1_data_gas: u128,
 }
 
-#[derive(Clone,  Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct BuiltinCounters {
     pub output: u64,
     pub pedersen: u64,
@@ -93,8 +94,6 @@ pub enum ExecutionStatus {
         reason: String,
     },
 }
-
-
 
 pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceipt> {
     old_reveipts
@@ -144,7 +143,11 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
             },
             TransactionReceipt::Deploy(tx_receipt) => ThinReceipt {
                 transaction_hash: Felt::from_hex_unchecked(
-                    &tx_receipt.common.transaction_hash.to_prefixed_hex_str().as_str(),
+                    &tx_receipt
+                        .common
+                        .transaction_hash
+                        .to_prefixed_hex_str()
+                        .as_str(),
                 ),
                 actual_fee: match tx_receipt.common.actual_fee {
                     FeeInUnits::WEI(fee_amount) => {
@@ -183,12 +186,24 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
                     .execution_status
                     .revert_reason()
                     .map(|s| s.to_string()),
-                l1_gas: tx_receipt.common.execution_resources.data_availability.l1_gas,
-                l1_data_gas: tx_receipt.common.execution_resources.data_availability.l1_data_gas,
+                l1_gas: tx_receipt
+                    .common
+                    .execution_resources
+                    .data_availability
+                    .l1_gas,
+                l1_data_gas: tx_receipt
+                    .common
+                    .execution_resources
+                    .data_availability
+                    .l1_data_gas,
             },
             TransactionReceipt::L1Handler(tx_receipt) => ThinReceipt {
                 transaction_hash: Felt::from_hex_unchecked(
-                    &tx_receipt.common.transaction_hash.to_prefixed_hex_str().as_str(),
+                    &tx_receipt
+                        .common
+                        .transaction_hash
+                        .to_prefixed_hex_str()
+                        .as_str(),
                 ),
                 actual_fee: match tx_receipt.common.actual_fee {
                     FeeInUnits::WEI(fee_amount) => {
@@ -241,5 +256,3 @@ pub fn convert_receipts(old_reveipts: Vec<TransactionReceipt>) -> Vec<ThinReceip
         })
         .collect()
 }
-
-

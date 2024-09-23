@@ -19,13 +19,13 @@ impl TrieNode {
             TrieNode::Binary { left, right } => H::hash(*left, *right),
             TrieNode::Edge { child, path } => {
                 let mut length = [0; 32];
-                length[31] = path.len() as u8;  
+                length[31] = path.len() as u8;
 
                 // Convert the `BitSlice<u8, Msb0>` to a `Vec<u8>`
-                let mut path_bytes = vec![0u8; (path.len() + 7) / 8]; 
+                let mut path_bytes = vec![0u8; (path.len() + 7) / 8];
                 path.as_bitslice().iter().enumerate().for_each(|(i, bit)| {
                     if *bit {
-                        path_bytes[i / 8] |= 1 << (7 - (i % 8));  
+                        path_bytes[i / 8] |= 1 << (7 - (i % 8));
                     }
                 });
 
@@ -37,4 +37,3 @@ impl TrieNode {
         }
     }
 }
-

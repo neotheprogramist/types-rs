@@ -6,7 +6,6 @@ use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
 use starknet_types_core::felt::Felt;
 
-
 /// This struct is used to store the difference between state modifications
 #[derive(PartialEq, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct StateDiff {
@@ -87,7 +86,8 @@ impl From<StateDiff> for reply::state_update::StateDiff {
             )
             .collect();
 
-        let old_declared_contracts: HashSet<Felt> = value.cairo_0_declared_contracts.into_iter().collect();
+        let old_declared_contracts: HashSet<Felt> =
+            value.cairo_0_declared_contracts.into_iter().collect();
 
         let storage_updates: HashMap<Felt, Vec<(Felt, Felt)>> = value
             .storage_updates
@@ -95,25 +95,22 @@ impl From<StateDiff> for reply::state_update::StateDiff {
             .map(|(address, entries)| (address, entries.into_iter().collect()))
             .collect();
 
-
         let storage_diffs = storage_updates
-        .into_iter()
-        .map(|(contract_address, updates)| {
-            let storage_entries = updates
-                .into_iter()
-                .map(|(key, value)| StorageDiff { key, value }) 
-                .collect::<Vec<StorageDiff>>(); 
-    
-            (contract_address, storage_entries)
-        })
-        .collect::<HashMap<Felt, Vec<StorageDiff>>>(); 
+            .into_iter()
+            .map(|(contract_address, updates)| {
+                let storage_entries = updates
+                    .into_iter()
+                    .map(|(key, value)| StorageDiff { key, value })
+                    .collect::<Vec<StorageDiff>>();
+
+                (contract_address, storage_entries)
+            })
+            .collect::<HashMap<Felt, Vec<StorageDiff>>>();
 
         let nonces: HashMap<
             reply::state_update::ContractAddress,
             reply::state_update::ContractNonce,
-        > = value
-            .address_to_nonce.into_iter().collect();
-
+        > = value.address_to_nonce.into_iter().collect();
 
         let replaced_classes = Vec::new();
 

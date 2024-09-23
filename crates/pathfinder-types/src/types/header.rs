@@ -1,11 +1,10 @@
-use std::str::FromStr;
 use std::fmt::Display;
+use std::str::FromStr;
 
-use fake::Dummy;
 use anyhow;
+use fake::Dummy;
 use serde::{Deserialize, Serialize};
 use starknet_types_core::felt::Felt;
-
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct BlockHeader {
@@ -54,8 +53,9 @@ pub struct BlockCommitmentSignature {
     pub s: Felt,
 }
 
-
-#[derive(Clone, Serialize, Deserialize,Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Dummy)]
+#[derive(
+    Clone, Serialize, Deserialize, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Dummy,
+)]
 pub struct StarknetVersion(u8, u8, u8, u8);
 
 impl StarknetVersion {

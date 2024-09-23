@@ -56,12 +56,12 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::rc::Rc;
 
+use super::hash::FeltHash;
+use super::trie::{Node, NodeRef, StoredNode, TrieUpdate};
+use super::trie_node::TrieNode;
 use anyhow::Context;
 use bitvec::prelude::{BitSlice, BitVec, Msb0};
-use super::hash::FeltHash;
-use super::trie_node::TrieNode;
 use starknet_types_core::felt::Felt;
-use super::trie::{Node, NodeRef, StoredNode, TrieUpdate};
 
 use super::merkle_node::{BinaryNode, Direction, EdgeNode, InternalNode};
 use super::storage::Storage;

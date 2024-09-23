@@ -1,6 +1,6 @@
+use super::header::L1DataAvailabilityMode;
 use serde::{Deserialize, Serialize};
 use starknet_types_core::felt::Felt;
-use super::header::L1DataAvailabilityMode;
 
 use starknet_types_rpc::v0_7_1::starknet_api_openrpc::TxnWithHash;
 
@@ -26,7 +26,6 @@ pub struct Block {
     pub header: BlockHeaderData,
     pub transactions: Vec<TxnWithHash<Felt>>,
 }
-
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub struct BlockHeaderData {
@@ -72,5 +71,3 @@ pub struct ResourcePrice {
     /// the price of one unit of the given resource, denominated in wei
     pub price_in_wei: U128,
 }
-
-

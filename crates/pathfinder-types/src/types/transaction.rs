@@ -1,7 +1,7 @@
-use bitvec::view::BitView;
 use super::hash::FeltHash;
-use starknet_types_core::felt::Felt;
 use super::trie::StoredNode;
+use bitvec::view::BitView;
+use starknet_types_core::felt::Felt;
 
 use super::tree::MerkleTree;
 
@@ -61,8 +61,8 @@ impl<H: FeltHash> TransactionOrEventTree<H> {
 
 #[cfg(test)]
 mod tests {
-    use starknet_types_core::felt::Felt;
     use crate::types::hash::PedersenHash;
+    use starknet_types_core::felt::Felt;
 
     use super::*;
 
@@ -79,8 +79,9 @@ mod tests {
         // produced by the cairo-lang Python implementation:
         // `hex(asyncio.run(calculate_patricia_root([1, 2, 3, 4], height=64,
         // ffc=ffc))))`
-        let expected_root_hash =
-            Felt::from_hex_unchecked("0x1a0e579b6b444769e4626331230b5ae39bd880f47e703b73fa56bf77e52e461");
+        let expected_root_hash = Felt::from_hex_unchecked(
+            "0x1a0e579b6b444769e4626331230b5ae39bd880f47e703b73fa56bf77e52e461",
+        );
         let computed_root_hash = tree.commit().unwrap();
 
         assert_eq!(expected_root_hash, computed_root_hash);

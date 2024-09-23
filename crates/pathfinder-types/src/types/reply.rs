@@ -1,16 +1,15 @@
 //! Structures used for deserializing replies from Starkware's sequencer REST
 //! API.
-use super:: header::{self};
+use super::header::{self};
 use super::state_update as state_update_main;
-use starknet_types_core::felt::Felt;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use starknet_types_core::felt::Felt;
 
 type BlockHash = Felt;
 type ContractAddress = Felt;
 type GasPrice = u128;
 type StateCommitment = Felt;
-
 
 #[derive(Copy, Clone, Debug, Default, Deserialize, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -19,7 +18,6 @@ pub enum L1DataAvailabilityMode {
     Calldata,
     Blob,
 }
-
 
 impl From<L1DataAvailabilityMode> for header::L1DataAvailabilityMode {
     fn from(value: L1DataAvailabilityMode) -> Self {
@@ -145,7 +143,6 @@ pub mod transaction_status {
     }
 }
 
-
 /// Used to deserialize replies to StarkNet state update requests.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
@@ -159,7 +156,6 @@ pub struct StateUpdate {
     pub old_root: StateCommitment,
     pub state_diff: state_update::StateDiff,
 }
-
 
 impl StateUpdate {
     pub fn new(block_hash: Felt, state_diff: state_update::StateDiff) -> Self {
@@ -242,8 +238,8 @@ impl From<StateUpdate> for state_update_main::StateUpdate {
 
 /// Types used when deserializing state update related data.
 pub mod state_update {
-    use std::collections::{HashMap, HashSet};
     use starknet_types_core::felt::Felt;
+    use std::collections::{HashMap, HashSet};
     pub type BlockHash = Felt;
     pub type CasmHash = Felt;
     pub type ClassHash = Felt;
@@ -263,7 +259,7 @@ pub mod state_update {
     #[serde(deny_unknown_fields)]
     pub struct StateDiff {
         #[serde_as(as = "HashMap<_, Vec<_>>")]
-        pub storage_diffs: HashMap<ContractAddress, Vec<StorageDiff>>,//
+        pub storage_diffs: HashMap<ContractAddress, Vec<StorageDiff>>, //
         pub deployed_contracts: Vec<DeployedContract>,
         pub old_declared_contracts: HashSet<ClassHash>, //
         pub declared_classes: Vec<DeclaredSierraClass>,
@@ -303,4 +299,3 @@ pub mod state_update {
         pub class_hash: ClassHash,
     }
 }
-
