@@ -460,7 +460,7 @@ pub struct DeployAccountTxnV3<F> {
     pub resource_bounds: ResourceBoundsMapping,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
+    pub tip: F,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -593,7 +593,7 @@ pub struct ExecutionResources {
     #[serde(default)]
     pub segment_arena_builtin: Option<u64>,
     /// The number of Cairo steps used
-    pub steps: u64,
+    pub n_steps: u64,
     pub data_availability: DataAvailability,
 }
 
@@ -723,7 +723,7 @@ pub struct InvokeTxnV3<F> {
     pub sender_address: Address<F>,
     pub signature: Signature<F>,
     /// the tip for the transaction
-    pub tip: U64,
+    pub tip: F,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -853,6 +853,15 @@ pub struct ResourceBoundsMapping {
     pub l1_gas: ResourceBounds,
     /// The max amount and max price per unit of L2 gas used in this tx
     pub l2_gas: ResourceBounds,
+}
+
+/// Execution resource.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+pub enum Resource {
+    #[serde(rename = "L1_GAS")]
+    L1Gas,
+    #[serde(rename = "L2_GAS")]
+    L2Gas,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
