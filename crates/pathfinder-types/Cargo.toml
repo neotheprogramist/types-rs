@@ -26,6 +26,3 @@ starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-de
 starknet-types-core = { path = "../starknet-types-core" }
 starknet-types-rpc = { path = "../starknet-types-rpc" }
 rand = "0.8.5"
-
-[dev-dependencies]
-rand = "0.8.5"
