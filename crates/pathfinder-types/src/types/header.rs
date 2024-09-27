@@ -2,7 +2,6 @@ use std::fmt::Display;
 use std::str::FromStr;
 
 use anyhow;
-use fake::Dummy;
 use serde::{Deserialize, Serialize};
 use starknet_types_core::felt::Felt;
 
@@ -31,9 +30,7 @@ pub struct BlockHeader {
     pub state_diff_length: u32,
 }
 
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Default, Dummy, serde::Serialize, serde::Deserialize,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum L1DataAvailabilityMode {
     #[default]
@@ -53,9 +50,7 @@ pub struct BlockCommitmentSignature {
     pub s: Felt,
 }
 
-#[derive(
-    Clone, Serialize, Deserialize, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Dummy,
-)]
+#[derive(Clone, Serialize, Deserialize, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StarknetVersion(u8, u8, u8, u8);
 
 impl StarknetVersion {
