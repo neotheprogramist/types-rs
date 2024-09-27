@@ -23,3 +23,4 @@ sha3 = "0.10"
 starknet-devnet-types = { git = "https://github.com/neotheprogramist/starknet-devnet-rs.git", branch = "feat/add-deserialization-serialization" }
 starknet-types-core = { path = "../starknet-types-core" }
 starknet-types-rpc = { path = "../starknet-types-rpc" }
+rand = "0.8.5"

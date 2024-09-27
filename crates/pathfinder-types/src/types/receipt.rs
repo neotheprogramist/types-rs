@@ -1,3 +1,4 @@
+use fake::Dummy;
 use serde::Deserialize;
 use starknet_devnet_types::felt::Felt as DevnetFelt;
 use starknet_devnet_types::{
@@ -61,7 +62,7 @@ pub struct ExecutionResources {
     pub total_gas_consumed: L1Gas,
 }
 
-#[derive(Clone, Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Debug, Default, PartialEq, Eq, Dummy)]
 pub struct L1Gas {
     pub l1_gas: u128,
     pub l1_data_gas: u128,
@@ -83,7 +84,7 @@ pub struct BuiltinCounters {
     pub range_check96: u64,
 }
 
-#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Deserialize, Default, Debug, PartialEq, Eq, Dummy)]
 pub enum ExecutionStatus {
     // This must be the default as pre v0.12.1 receipts did not contain this value and
     // were always success as reverted did not exist.
