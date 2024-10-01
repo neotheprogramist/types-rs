@@ -118,6 +118,30 @@ pub struct BroadcastedDeclareTxnV2 {
     pub signature: Signature,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BroadcastedDeclareTxnV3 {
+    /// data needed to deploy the account contract from which this tx will be initiated
+    pub account_deployment_data: Vec<Felt>,
+    /// The hash of the Cairo assembly resulting from the Sierra compilation
+    pub compiled_class_hash: Felt,
+    /// The class to be declared
+    pub contract_class: ContractClass,
+    /// The storage domain of the account's balance from which fee will be charged
+    pub fee_data_availability_mode: DaMode,
+    pub nonce: Felt,
+    /// The storage domain of the account's nonce (an account has a nonce per DA mode)
+    pub nonce_data_availability_mode: DaMode,
+    /// data needed to allow the paymaster to pay for the transaction in native tokens
+    pub paymaster_data: Vec<Felt>,
+    /// resource bounds for the transaction execution
+    pub resource_bounds: ResourceBoundsMapping,
+    /// The address of the account contract sending the declaration transaction
+    pub sender_address: Address,
+    pub signature: Signature,
+    /// the tip for the transaction
+    pub tip: U64,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "type")]
 pub enum BroadcastedTxn {

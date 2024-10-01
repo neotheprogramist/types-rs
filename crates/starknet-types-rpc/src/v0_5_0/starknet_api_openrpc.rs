@@ -128,6 +128,19 @@ pub struct BroadcastedDeclareTxnV2 {
     pub signature: Signature,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BroadcastedDeclareTxnV3 {
+    /// The hash of the Cairo assembly resulting from the Sierra compilation
+    pub compiled_class_hash: Felt,
+    /// The class to be declared
+    pub contract_class: ContractClass,
+    pub nonce: Felt,
+    /// The max amount and max price per unit of L1 gas used in this tx
+    pub l1_gas: ResourceLimits,
+    pub sender_address: Address,
+    pub signature: Signature,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "type")]
 pub enum BroadcastedTxn {
@@ -212,6 +225,14 @@ pub struct KeyValuePair {
     #[serde(default)]
     pub value: Option<Felt>,
 }
+
+/// Specifies a storage domain in Starknet. Each domain has different gurantess regarding availability
+#[derive(Eq, Hash, PartialEq, Deserialize, Serialize, Clone, Debug)]
+pub enum DaMode {
+    L1,
+    L2,
+}
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "version")]
