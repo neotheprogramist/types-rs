@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod felt_arbitrary;
 mod primitive_conversions;
+pub mod ufe_hex;
 
 use core::ops::{Add, Mul, Neg};
 use core::str::FromStr;
