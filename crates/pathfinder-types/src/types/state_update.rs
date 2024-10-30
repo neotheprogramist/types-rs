@@ -276,7 +276,10 @@ impl StateUpdate {
 pub mod state_diff_commitment {
     use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-    use starknet_types_core::{felt::Felt, hash::PoseidonHasher};
+    use starknet_types_core::{
+        felt::Felt,
+        hash::{Poseidon, StarkHash},
+    };
 
     use super::{ContractUpdate, SystemContractUpdate};
 
@@ -301,8 +304,9 @@ pub mod state_diff_commitment {
         declared_sierra_classes: &HashMap<SierraHash, CasmHash>,
         // version: StarknetVersion,
     ) -> Felt {
-        let mut hasher = PoseidonHasher::new();
-        hasher.update(Felt::from_bytes_be_slice(b"STARKNET_STATE_DIFF0"));
+        // hasher.update(Felt::from_bytes_be_slice(b"STARKNET_STATE_DIFF0"));
+        let mut data = vec![Felt::from_bytes_be_slice(b"STARKNET_STATE_DIFF0")];
+
         // Hash the deployed contracts.
         let deployed_contracts: BTreeMap<_, _> = contract_updates
             .iter()
@@ -313,30 +317,62 @@ pub mod state_diff_commitment {
                     .map(|update| (*address, update.class_hash()))
             })
             .collect();
-        hasher.update((deployed_contracts.len() as u64).into());
+        data.push((deployed_contracts.len() as u64).into());
         for (address, class_hash) in deployed_contracts {
-            hasher.update(address);
-            hasher.update(class_hash);
+            data.push(address);
+            data.push(class_hash);
         }
+        // let deployed_contracts: BTreeMap<_, _> = contract_updates
+        //     .iter()
+        //     .filter_map(|(address, update)| {
+        //         update
+        //             .class
+        //             .as_ref()
+        //             .map(|update| (*address, update.class_hash()))
+        //     })
+        //     .collect();
+        // hasher.update((deployed_contracts.len() as u64).into());
+        // for (address, class_hash) in deployed_contracts {
+        //     hasher.update(address);
+        //     hasher.update(class_hash);
+        // }
         // Hash the declared classes.
+        // let declared_classes: BTreeSet<_> = declared_sierra_classes
+        //     .iter()
+        //     .map(|(sierra, casm)| (*sierra, *casm))
+        //     .collect();
+        // hasher.update((declared_classes.len() as u64).into());
+        // for (sierra, casm) in declared_classes {
+        //     hasher.update(sierra);
+        //     hasher.update(casm);
+        // }
         let declared_classes: BTreeSet<_> = declared_sierra_classes
             .iter()
             .map(|(sierra, casm)| (*sierra, *casm))
             .collect();
-        hasher.update((declared_classes.len() as u64).into());
+        data.push((declared_classes.len() as u64).into());
         for (sierra, casm) in declared_classes {
-            hasher.update(sierra);
-            hasher.update(casm);
+            data.push(sierra);
+            data.push(casm);
         }
         // Hash the old declared classes.
+        // let deprecated_declared_classes: BTreeSet<_> =
+        //     declared_cairo_classes.iter().copied().collect();
+        // hasher.update((deprecated_declared_classes.len() as u64).into());
+        // for class_hash in deprecated_declared_classes {
+        //     hasher.update(class_hash);
+        // }
+        // hasher.update(Felt::ONE);
+        // hasher.update(Felt::ZERO);
         let deprecated_declared_classes: BTreeSet<_> =
             declared_cairo_classes.iter().copied().collect();
-        hasher.update((deprecated_declared_classes.len() as u64).into());
+        data.push((deprecated_declared_classes.len() as u64).into());
         for class_hash in deprecated_declared_classes {
-            hasher.update(class_hash);
+            data.push(class_hash);
         }
-        hasher.update(Felt::ONE);
-        hasher.update(Felt::ZERO);
+
+        data.push(Felt::ONE);
+        data.push(Felt::ZERO);
         // Hash the storage diffs.
         let storage_diffs: BTreeMap<_, _> = contract_updates
             .iter()
@@ -356,26 +392,63 @@ pub mod state_diff_commitment {
                 }
             })
             .collect();
-        hasher.update((storage_diffs.len() as u64).into());
+        data.push((storage_diffs.len() as u64).into());
         for (address, updates) in storage_diffs {
-            hasher.update(address);
-            hasher.update((updates.len() as u64).into());
+            data.push(address);
+            data.push((updates.len() as u64).into());
             for (key, value) in updates {
-                hasher.update(key);
-                hasher.update(value);
+                data.push(key);
+                data.push(value);
             }
         }
+        // let storage_diffs: BTreeMap<_, _> = contract_updates
+        //     .iter()
+        //     .map(|(address, update)| (address, &update.storage))
+        //     .chain(
+        //         system_contract_updates
+        //             .iter()
+        //             .map(|(address, update)| (address, &update.storage)),
+        //     )
+        //     .filter_map(|(address, storage)| {
+        //         if storage.is_empty() {
+        //             None
+        //         } else {
+        //             let updates: BTreeMap<_, _> =
+        //                 storage.iter().map(|(key, value)| (*key, *value)).collect();
+        //             Some((*address, updates))
+        //         }
+        //     })
+        //     .collect();
+        // hasher.update((storage_diffs.len() as u64).into());
+        // for (address, updates) in storage_diffs {
+        //     hasher.update(address);
+        //     hasher.update((updates.len() as u64).into());
+        //     for (key, value) in updates {
+        //         hasher.update(key);
+        //         hasher.update(value);
+        //     }
+        // }
         // Hash the nonce updates.
         let nonces: BTreeMap<_, _> = contract_updates
             .iter()
             .filter_map(|(address, update)| update.nonce.map(|nonce| (*address, nonce)))
             .collect();
-        hasher.update((nonces.len() as u64).into());
+        data.push((nonces.len() as u64).into());
         for (address, nonce) in nonces {
-            hasher.update(address);
-            hasher.update(nonce);
+            data.push(address);
+            data.push(nonce);
         }
-        hasher.finalize()
+        // let nonces: BTreeMap<_, _> = contract_updates
+        //     .iter()
+        //     .filter_map(|(address, update)| update.nonce.map(|nonce| (*address, nonce)))
+        //     .collect();
+        // hasher.update((nonces.len() as u64).into());
+        // for (address, nonce) in nonces {
+        //     hasher.update(address);
+        //     hasher.update(nonce);
+        // }
+        // hasher.finalize()
+        Poseidon::hash_array(&data)
     }
 }
 

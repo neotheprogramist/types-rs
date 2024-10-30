@@ -7,7 +7,8 @@ use crate::types::event::Event;
 use crate::types::hash::{FeltHash, PoseidonHash};
 use anyhow::{Context, Result};
 // use starknet_types_core::hash::{poseidon_hash_many, PoseidonHasher};
-use starknet_types_core::hash::{poseidon_hash_many, PoseidonHasher};
+// use starknet_types_core::hash::{poseidon_hash_many, PoseidonHasher};
+use starknet_types_core::hash::{Poseidon, StarkHash};
 use starknet_types_rpc::v0_7_1::starknet_api_openrpc::{
     DeclareTxn, DeployAccountTxn, InvokeTxn, Txn, TxnWithHash,
 };
@@ -59,27 +60,28 @@ pub fn compute_final_hash(header: &BlockHeaderData) -> Result<Felt, io::Error> {
     }])?;
     let concat_counts = Felt::from_bytes_be(&concat_counts);
     // Hash the block header.
-    let mut hasher = PoseidonHasher::new();
-    hasher.update(Felt::from_bytes_be_slice(b"STARKNET_BLOCK_HASH0"));
-    hasher.update(header.number.into());
-    hasher.update(header.state_commitment);
-    hasher.update(header.sequencer_address);
-    hasher.update(header.timestamp.into());
-    hasher.update(concat_counts);
-    hasher.update(header.state_diff_commitment);
-    hasher.update(header.transaction_commitment);
-    hasher.update(header.event_commitment);
-    hasher.update(header.receipt_commitment);
-    hasher.update(header.eth_l1_gas_price.into());
-    hasher.update(header.strk_l1_gas_price.into());
-    hasher.update(header.eth_l1_data_gas_price.into());
-    hasher.update(header.strk_l1_data_gas_price.into());
-    hasher.update(Felt::from_bytes_be_slice(
-        header.starknet_version.as_bytes(),
-    ));
-    hasher.update(Felt::ZERO);
-    hasher.update(header.parent_hash);
-    Ok(hasher.finalize())
+    let data = vec![
+        Felt::from_bytes_be_slice(b"STARKNET_BLOCK_HASH0"),
+        header.number.into(),
+        header.state_commitment,
+        header.sequencer_address,
+        header.timestamp.into(),
+        concat_counts,
+        header.state_diff_commitment,
+        header.transaction_commitment,
+        header.event_commitment,
+        header.receipt_commitment,
+        header.eth_l1_gas_price.into(),
+        header.strk_l1_gas_price.into(),
+        header.eth_l1_data_gas_price.into(),
+        header.strk_l1_data_gas_price.into(),
+        Felt::from_bytes_be_slice(header.starknet_version.as_bytes()),
+        Felt::ZERO,
+        header.parent_hash,
+    ];
+    let final_hash = Poseidon::hash_array(&data);
+
+    Ok(final_hash)
 }
 
 /// Calculate transaction commitment hash value.
@@ -102,45 +104,44 @@ pub fn calculate_transaction_commitment(transactions: &[TxnWithHash<Felt>]) -> R
 pub fn calculate_receipt_commitment(receipts: &[ThinReceipt]) -> Result<Felt> {
     use rayon::prelude::*;
 
-    let hashes = receipts
+    let hashes: Vec<Felt> = receipts
         .par_iter()
         .map(|receipt| {
-            poseidon_hash_many(&[
+            // Gather all components of the hash into a single vector of Felts
+            let mut data = vec![
                 receipt.transaction_hash,
                 receipt.actual_fee.into(),
-                // Calculate hash of messages sent.
-                {
-                    let mut hasher = PoseidonHasher::new();
-                    hasher.update((receipt.l2_to_l1_messages.len() as u64).into());
-                    for msg in &receipt.l2_to_l1_messages {
-                        hasher.update(msg.from_address);
-                        hasher.update(msg.to_address);
-                        hasher.update((msg.payload.len() as u64).into());
-                        for payload in &msg.payload {
-                            hasher.update(*payload);
-                        }
-                    }
-                    hasher.finalize()
-                },
-                // Revert reason.
-                match &receipt.revert_reason {
-                    None => Felt::ZERO,
-                    Some(reason) => {
-                        let mut keccak = sha3::Keccak256::default();
-                        keccak.update(reason.as_bytes());
-                        let mut hashed_bytes: [u8; 32] = keccak.finalize().into();
-                        hashed_bytes[0] &= 0b00000011_u8; // Discard the six MSBs.
-                        Felt::from_bytes_be(&hashed_bytes)
-                    }
-                },
-                // Execution resources:
-                // L2 gas
-                Felt::ZERO,
-                // L1 gas consumed
-                receipt.l1_gas.into(),
-                // L1 data gas consumed
-                receipt.l1_data_gas.into(),
-            ])
+                // L2 to L1 message data
+                (receipt.l2_to_l1_messages.len() as u64).into(),
+            ];
+
+            for msg in &receipt.l2_to_l1_messages {
+                data.push(msg.from_address);
+                data.push(msg.to_address);
+                data.push((msg.payload.len() as u64).into());
+                data.extend(msg.payload.iter().copied());
+            }
+
+            // Revert reason hash
+            let revert_reason_hash = match &receipt.revert_reason {
+                None => Felt::ZERO,
+                Some(reason) => {
+                    let mut keccak = sha3::Keccak256::default();
+                    keccak.update(reason.as_bytes());
+                    let mut hashed_bytes: [u8; 32] = keccak.finalize().into();
+                    hashed_bytes[0] &= 0b00000011_u8; // Discard the six MSBs
+                    Felt::from_bytes_be(&hashed_bytes)
+                }
+            };
+            data.push(revert_reason_hash);
+
+            // Execution resources
+            data.push(Felt::ZERO); // L2 gas placeholder
+            data.push(receipt.l1_gas.into()); // L1 gas consumed
+            data.push(receipt.l1_data_gas.into()); // L1 data gas consumed
+
+            // Compute the hash for the entire data vector
+            Poseidon::hash_array(&data)
         })
         .collect();
 
@@ -188,12 +189,12 @@ fn calculate_transaction_hash_with_signature(tx: &TxnWithHash<Felt>) -> Felt {
         Txn::Deploy(_) | Txn::L1Handler(_) => &[Felt::ZERO],
     };
 
-    let mut hasher = PoseidonHasher::new();
-    hasher.update(tx.transaction_hash);
-    for elem in signature {
-        hasher.update(*elem);
-    }
-    hasher.finalize()
+    // Collect transaction hash and signature elements into a vector
+    let mut data = vec![tx.transaction_hash];
+    data.extend_from_slice(signature);
+
+    // Compute the hash for the entire data vector
+    Poseidon::hash_array(&data)
 }
 
 /// Calculate event commitment hash value.
@@ -216,16 +217,19 @@ pub fn calculate_event_commitment(transaction_events: &Vec<(Felt, Vec<Event>)>) 
 /// Calculate the hash of an event.
 /// [Reference code from StarkWare](https://github.com/starkware-libs/starknet-api/blob/5565e5282f5fead364a41e49c173940fd83dee00/src/block_hash/event_commitment.rs#L33).
 fn calculate_event_hash(event: &Event, transaction_hash: Felt) -> Felt {
-    let mut hasher = PoseidonHasher::new();
-    hasher.update(event.from_address);
-    hasher.update(transaction_hash);
-    hasher.update((event.keys.len() as u64).into());
-    for key in &event.keys {
-        hasher.update(*key);
-    }
-    hasher.update((event.data.len() as u64).into());
-    for data in &event.data {
-        hasher.update(*data);
-    }
-    hasher.finalize()
+    let mut data = vec![
+        event.from_address,
+        transaction_hash,
+        (event.keys.len() as u64).into(),
+    ];
+
+    // Add each key to the vector
+    data.extend(event.keys.iter().copied());
+
+    // Add the data length and each data element to the vector
+    data.push((event.data.len() as u64).into());
+    data.extend(event.data.iter().copied());
+
+    // Compute the final hash
+    Poseidon::hash_array(&data)
 }
