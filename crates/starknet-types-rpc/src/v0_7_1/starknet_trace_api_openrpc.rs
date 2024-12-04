@@ -9,8 +9,8 @@
 //
 
 use super::{
-    BlockId, BroadcastedTxn, ComputationResources, Event, ExecutionResources, FeeEstimate,
-    FunctionCall, MsgToL1, StateDiff, TxnHash,
+    BlockId, BroadcastedTxn, ComputationResources, ExecutionResources, FeeEstimate, FunctionCall,
+    MsgToL1, StateDiff, TxnHash,
 };
 use alloc::string::String;
 use alloc::vec::Vec;
@@ -68,8 +68,10 @@ pub struct OrderedEvent<F> {
     /// the order of the event within the transaction
     #[serde(default)]
     pub order: Option<u64>,
-    #[serde(flatten)]
-    pub event: Event<F>,
+    /// Keys
+    pub keys: Vec<F>,
+    /// Data
+    pub data: Vec<F>,
 }
 
 /// a message alongside its order within the transaction
